@@ -1,4 +1,47 @@
-export const subjectsData = {
+const fs = require('fs');
+
+const students = [
+  '김민준', '이서연', '박도윤', '최지아', '정우진', '강하윤', '조민서', '윤서준', '장시우', '임수아',
+  '한예은', '오지훈', '서지유', '신건우', '권하은', '황준서', '안윤아', '송현우', '유지우', '홍채원'
+];
+
+function generate20Students(subject) {
+  return students.map((name, i) => {
+    let score, time, qCount, note;
+    if (subject === 'social') {
+      score = Math.floor(Math.random() * 60) + 40; // 40~100
+      time = Math.floor(Math.random() * 30) + 10;
+      qCount = Math.floor(Math.random() * 20);
+      if (name === '오지훈') { score = 40; qCount = 62; time = 12; note = '프롬프트 의존증 심각'; }
+      else if (score > 90) note = '주도적 학습';
+      else if (time < 15) note = '찍기 의심';
+      else note = '보통';
+    } else if (subject === 'science') {
+      score = Math.floor(Math.random() * 50) + 50;
+      time = Math.floor(Math.random() * 40) + 20;
+      qCount = Math.floor(Math.random() * 15);
+      note = score < 60 ? '가상실험 조작 미숙' : '우수';
+    } else if (subject === 'arts') {
+      score = ['A', 'B', 'C'][Math.floor(Math.random() * 3)];
+      time = Math.floor(Math.random() * 10) + 1; // 연습시간
+      qCount = Math.floor(Math.random() * 5);
+      note = time > 8 ? '성실함' : '연습 부족';
+    } else if (subject === 'tech') {
+      score = Math.floor(Math.random() * 50) + 50;
+      time = Math.floor(Math.random() * 3) + 1; // 제작 일수
+      qCount = Math.floor(Math.random() * 10);
+      note = score > 85 ? '안전수칙 완벽준수' : '마감 지연';
+    } else { // special
+      score = Math.floor(Math.random() * 80) + 20; // 달성률
+      time = Math.floor(Math.random() * 15) + 5; // 집중시간
+      qCount = Math.floor(Math.random() * 10); // 도전적행동
+      note = qCount > 7 ? '집중 지원 필요' : '안정적';
+    }
+    return { name, score, time, qCount, note };
+  });
+}
+
+const mockDataStr = `export const subjectsData = {
   social: {
     name: '사회과',
     datasets: [
@@ -20,7 +63,7 @@ export const subjectsData = {
             title: '학생 20명 개별 현황 모니터링',
             type: 'table',
             columns: ['이름', '단원평가 점수', '문항당 평균시간(초)', 'AI질문 횟수', '특이사항'],
-            data: [{"name":"김민준","score":86,"time":28,"qCount":12,"note":"보통"},{"name":"이서연","score":81,"time":12,"qCount":10,"note":"찍기 의심"},{"name":"박도윤","score":92,"time":27,"qCount":3,"note":"주도적 학습"},{"name":"최지아","score":66,"time":27,"qCount":16,"note":"보통"},{"name":"정우진","score":45,"time":14,"qCount":11,"note":"찍기 의심"},{"name":"강하윤","score":76,"time":23,"qCount":14,"note":"보통"},{"name":"조민서","score":77,"time":23,"qCount":1,"note":"보통"},{"name":"윤서준","score":67,"time":34,"qCount":10,"note":"보통"},{"name":"장시우","score":41,"time":30,"qCount":15,"note":"보통"},{"name":"임수아","score":51,"time":23,"qCount":0,"note":"보통"},{"name":"한예은","score":79,"time":19,"qCount":5,"note":"보통"},{"name":"오지훈","score":40,"time":12,"qCount":62,"note":"프롬프트 의존증 심각"},{"name":"서지유","score":71,"time":35,"qCount":0,"note":"보통"},{"name":"신건우","score":40,"time":23,"qCount":1,"note":"보통"},{"name":"권하은","score":90,"time":18,"qCount":17,"note":"보통"},{"name":"황준서","score":45,"time":32,"qCount":5,"note":"보통"},{"name":"안윤아","score":86,"time":17,"qCount":0,"note":"보통"},{"name":"송현우","score":81,"time":25,"qCount":11,"note":"보통"},{"name":"유지우","score":83,"time":17,"qCount":11,"note":"보통"},{"name":"홍채원","score":66,"time":31,"qCount":0,"note":"보통"}].map(s => ({ 
+            data: ${JSON.stringify(generate20Students('social'))}.map(s => ({ 
               name: s.name, score: s.score + '점', time: s.time + '초', q: s.qCount + '회', note: s.note 
             }))
           },
@@ -147,7 +190,7 @@ export const subjectsData = {
             title: '학생 20명 실험실 활동 모니터링',
             type: 'table',
             columns: ['이름', '이론 점수', '실험 소요시간', '오류발생 횟수', '특이사항'],
-            data: [{"name":"김민준","score":80,"time":36,"qCount":14,"note":"우수"},{"name":"이서연","score":71,"time":58,"qCount":5,"note":"우수"},{"name":"박도윤","score":77,"time":27,"qCount":8,"note":"우수"},{"name":"최지아","score":90,"time":44,"qCount":3,"note":"우수"},{"name":"정우진","score":67,"time":24,"qCount":2,"note":"우수"},{"name":"강하윤","score":56,"time":30,"qCount":1,"note":"가상실험 조작 미숙"},{"name":"조민서","score":79,"time":31,"qCount":9,"note":"우수"},{"name":"윤서준","score":79,"time":45,"qCount":7,"note":"우수"},{"name":"장시우","score":67,"time":25,"qCount":1,"note":"우수"},{"name":"임수아","score":83,"time":40,"qCount":11,"note":"우수"},{"name":"한예은","score":84,"time":32,"qCount":10,"note":"우수"},{"name":"오지훈","score":73,"time":45,"qCount":12,"note":"우수"},{"name":"서지유","score":95,"time":58,"qCount":3,"note":"우수"},{"name":"신건우","score":96,"time":22,"qCount":6,"note":"우수"},{"name":"권하은","score":91,"time":28,"qCount":13,"note":"우수"},{"name":"황준서","score":83,"time":37,"qCount":13,"note":"우수"},{"name":"안윤아","score":86,"time":40,"qCount":4,"note":"우수"},{"name":"송현우","score":88,"time":56,"qCount":1,"note":"우수"},{"name":"유지우","score":70,"time":56,"qCount":0,"note":"우수"},{"name":"홍채원","score":80,"time":53,"qCount":13,"note":"우수"}].map(s => ({ 
+            data: ${JSON.stringify(generate20Students('science'))}.map(s => ({ 
               name: s.name, score: s.score + '점', time: s.time + '분', q: s.qCount + '회', note: s.note 
             }))
           },
@@ -261,7 +304,7 @@ export const subjectsData = {
             title: '학생 20명 실기 및 피드백 현황',
             type: 'table',
             columns: ['이름', '실기 등급', '주간 연습시간(시간)', '동료평가 건수', '특이사항'],
-            data: [{"name":"김민준","score":"B","time":9,"qCount":4,"note":"성실함"},{"name":"이서연","score":"C","time":8,"qCount":0,"note":"연습 부족"},{"name":"박도윤","score":"B","time":1,"qCount":4,"note":"연습 부족"},{"name":"최지아","score":"C","time":8,"qCount":1,"note":"연습 부족"},{"name":"정우진","score":"B","time":6,"qCount":0,"note":"연습 부족"},{"name":"강하윤","score":"A","time":3,"qCount":0,"note":"연습 부족"},{"name":"조민서","score":"B","time":3,"qCount":1,"note":"연습 부족"},{"name":"윤서준","score":"C","time":5,"qCount":2,"note":"연습 부족"},{"name":"장시우","score":"C","time":4,"qCount":3,"note":"연습 부족"},{"name":"임수아","score":"A","time":10,"qCount":2,"note":"성실함"},{"name":"한예은","score":"B","time":8,"qCount":0,"note":"연습 부족"},{"name":"오지훈","score":"B","time":2,"qCount":2,"note":"연습 부족"},{"name":"서지유","score":"C","time":9,"qCount":4,"note":"성실함"},{"name":"신건우","score":"C","time":7,"qCount":0,"note":"연습 부족"},{"name":"권하은","score":"C","time":10,"qCount":0,"note":"성실함"},{"name":"황준서","score":"B","time":1,"qCount":4,"note":"연습 부족"},{"name":"안윤아","score":"A","time":3,"qCount":2,"note":"연습 부족"},{"name":"송현우","score":"A","time":5,"qCount":1,"note":"연습 부족"},{"name":"유지우","score":"B","time":10,"qCount":0,"note":"성실함"},{"name":"홍채원","score":"B","time":9,"qCount":1,"note":"성실함"}].map(s => ({ 
+            data: ${JSON.stringify(generate20Students('arts'))}.map(s => ({ 
               name: s.name, score: s.score, time: s.time + '시간', q: s.qCount + '건', note: s.note 
             }))
           },
@@ -374,7 +417,7 @@ export const subjectsData = {
             title: '학생 20명 프로젝트 진행 모니터링',
             type: 'table',
             columns: ['이름', '디자인 점수', '소요 일수(일)', '질문 횟수', '상태/특이사항'],
-            data: [{"name":"김민준","score":73,"time":3,"qCount":6,"note":"마감 지연"},{"name":"이서연","score":86,"time":2,"qCount":2,"note":"안전수칙 완벽준수"},{"name":"박도윤","score":73,"time":3,"qCount":3,"note":"마감 지연"},{"name":"최지아","score":91,"time":3,"qCount":4,"note":"안전수칙 완벽준수"},{"name":"정우진","score":59,"time":1,"qCount":8,"note":"마감 지연"},{"name":"강하윤","score":76,"time":2,"qCount":9,"note":"마감 지연"},{"name":"조민서","score":56,"time":1,"qCount":0,"note":"마감 지연"},{"name":"윤서준","score":87,"time":2,"qCount":3,"note":"안전수칙 완벽준수"},{"name":"장시우","score":92,"time":3,"qCount":9,"note":"안전수칙 완벽준수"},{"name":"임수아","score":82,"time":3,"qCount":2,"note":"마감 지연"},{"name":"한예은","score":90,"time":1,"qCount":6,"note":"안전수칙 완벽준수"},{"name":"오지훈","score":62,"time":2,"qCount":0,"note":"마감 지연"},{"name":"서지유","score":98,"time":2,"qCount":0,"note":"안전수칙 완벽준수"},{"name":"신건우","score":87,"time":3,"qCount":3,"note":"안전수칙 완벽준수"},{"name":"권하은","score":53,"time":3,"qCount":2,"note":"마감 지연"},{"name":"황준서","score":86,"time":2,"qCount":1,"note":"안전수칙 완벽준수"},{"name":"안윤아","score":76,"time":1,"qCount":1,"note":"마감 지연"},{"name":"송현우","score":60,"time":1,"qCount":7,"note":"마감 지연"},{"name":"유지우","score":77,"time":3,"qCount":9,"note":"마감 지연"},{"name":"홍채원","score":76,"time":3,"qCount":8,"note":"마감 지연"}].map(s => ({ 
+            data: ${JSON.stringify(generate20Students('tech'))}.map(s => ({ 
               name: s.name, score: s.score + '점', time: s.time + '일', q: s.qCount + '회', note: s.note 
             }))
           },
@@ -487,7 +530,7 @@ export const subjectsData = {
             title: '학생 20명 IEP 현황 보드',
             type: 'table',
             columns: ['이름', '목표 달성률', '평균 집중시간(분)', '도전적 행동(주간)', '행동 지원 상태'],
-            data: [{"name":"김민준","score":45,"time":11,"qCount":5,"note":"안정적"},{"name":"이서연","score":64,"time":9,"qCount":9,"note":"집중 지원 필요"},{"name":"박도윤","score":72,"time":9,"qCount":6,"note":"안정적"},{"name":"최지아","score":77,"time":15,"qCount":1,"note":"안정적"},{"name":"정우진","score":90,"time":18,"qCount":5,"note":"안정적"},{"name":"강하윤","score":90,"time":18,"qCount":3,"note":"안정적"},{"name":"조민서","score":21,"time":7,"qCount":2,"note":"안정적"},{"name":"윤서준","score":60,"time":9,"qCount":3,"note":"안정적"},{"name":"장시우","score":30,"time":16,"qCount":2,"note":"안정적"},{"name":"임수아","score":39,"time":11,"qCount":6,"note":"안정적"},{"name":"한예은","score":35,"time":5,"qCount":3,"note":"안정적"},{"name":"오지훈","score":37,"time":6,"qCount":7,"note":"안정적"},{"name":"서지유","score":53,"time":18,"qCount":1,"note":"안정적"},{"name":"신건우","score":96,"time":15,"qCount":7,"note":"안정적"},{"name":"권하은","score":52,"time":15,"qCount":6,"note":"안정적"},{"name":"황준서","score":53,"time":18,"qCount":7,"note":"안정적"},{"name":"안윤아","score":71,"time":10,"qCount":7,"note":"안정적"},{"name":"송현우","score":99,"time":9,"qCount":1,"note":"안정적"},{"name":"유지우","score":56,"time":13,"qCount":3,"note":"안정적"},{"name":"홍채원","score":47,"time":6,"qCount":0,"note":"안정적"}].map(s => ({ 
+            data: ${JSON.stringify(generate20Students('special'))}.map(s => ({ 
               name: s.name, score: s.score + '%', time: s.time + '분', q: s.qCount + '회', note: s.note 
             }))
           },
@@ -581,3 +624,7 @@ export const subjectsData = {
     ]
   }
 };
+`;
+
+fs.writeFileSync('./src/data/mockData.js', mockDataStr, 'utf8');
+console.log('mockData generated!');
