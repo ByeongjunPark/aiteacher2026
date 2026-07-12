@@ -5,7 +5,7 @@ export const subjectsData = {
       {
         id: 'class',
         title: '학급 전체 데이터 (AI 코스웨어 - 시장 경제 단원)',
-        description: '사회과 2학년 3반(총 20명)이 AI 디지털 교과서로 [시장 경제와 가격] 단원을 학습하며 생성된 총체적 데이터입니다. 겉보기 진도율은 높으나, 심층적 문제 발생이 의심됩니다.',
+        description: '사회과 2학년 3반(총 20명)이 AI 디지털 교과서로 [시장 경제와 가격] 단원을 학습하며 생성된 총체적 데이터입니다.',
         sections: [
           {
             title: '학급 전체 학습 지표 요약',
@@ -38,16 +38,34 @@ export const subjectsData = {
             ]
           },
           {
-            title: '시스템 경고 및 특이사항',
-            type: 'text',
-            content: '[AI 튜터 분석 알림] "학급 전체 20명 중 13명(65%)이 DOK 3(분석) 이상의 고차원 사고 문항에서 인지적 과부하를 겪고 즉각적으로 학습을 회피하는 패턴(찍기, 15초 내 이탈)을 보입니다. AI 챗봇을 지식 확장이 아닌 빠른 정답 도구로 사용합니다."'
+            title: '학생별 학습 시간 대비 성취도 산포도 (모의)',
+            type: 'chart',
+            chartType: 'bar', // Using bar to simulate distribution for simplicity
+            data: [
+              { name: '상위 10%', rate: 95, time: 45 },
+              { name: '중위권', rate: 65, time: 25 },
+              { name: '하위 20%', rate: 30, time: 10 },
+              { name: '극하위권', rate: 15, time: 5 }
+            ]
+          },
+          {
+            title: '동영상 클립 시청 구간별 이탈률',
+            type: 'chart',
+            chartType: 'bar',
+            data: [
+              { name: '0~20% 구간', rate: 5, time: 100 },
+              { name: '20~40% 구간', rate: 15, time: 95 },
+              { name: '40~60% 구간', rate: 65, time: 80 },
+              { name: '60~80% 구간', rate: 85, time: 35 },
+              { name: '80~100% 구간', rate: 95, time: 15 }
+            ]
           }
         ]
       },
       {
         id: 'student',
         title: '학생 단위 데이터 (7번 이지훈 학생 심층 로그)',
-        description: '학급 내에서 챗봇 사용 빈도는 가장 높으나, 학업 성취도가 저조한 "프롬프트 의존증(Prompt Dependency)" 의심 학생의 다각적 데이터입니다.',
+        description: '학급 내에서 챗봇 사용 빈도는 가장 높으나, 학업 성취도가 저조한 "프롬프트 의존증(Prompt Dependency)" 의심 학생입니다.',
         sections: [
           {
             title: '학생 지훈이의 인지/행동 요약',
@@ -73,9 +91,39 @@ export const subjectsData = {
             ]
           },
           {
-            title: '학습 태도 종합 코멘트 (AI + 교사 관찰)',
-            type: 'text',
-            content: '지훈이는 AI 디지털 교과서의 상호작용(챗봇, 힌트 보기) 기능을 반에서 가장 많이 사용하지만, "생각하기 위한(Think with)" 도구가 아니라 "생각을 아웃소싱하는(Think for)" 도구로 악용하고 있습니다. AI가 질문으로 유도하려 할 때마다 즉각적인 정답을 요구하며, 실패 시 쉽게 좌절하고 클릭 횟수로만 정답을 찾아내는 행동 패턴이 고착화되었습니다.'
+            title: '지훈이의 문항별 체류 시간 vs 정답 여부',
+            type: 'chart',
+            chartType: 'bar',
+            data: [
+              { name: '문항1 (단순지식)', rate: 100, time: 5 },
+              { name: '문항2 (단순지식)', rate: 100, time: 4 },
+              { name: '문항3 (그래프분석)', rate: 0, time: 8 },
+              { name: '문항4 (응용추론)', rate: 0, time: 6 },
+              { name: '문항5 (실생활적용)', rate: 0, time: 3 }
+            ]
+          },
+          {
+            title: '단원별 AI 챗봇 질문 유형(DOK) 비율',
+            type: 'chart',
+            chartType: 'pie',
+            data: [
+              { name: '정답/해설 요구 (DOK 0)', value: 80 },
+              { name: '단어 뜻 질문 (DOK 1)', value: 15 },
+              { name: '개념 질문 (DOK 2)', value: 5 },
+              { name: '심층 질문 (DOK 3~4)', value: 0 }
+            ]
+          },
+          {
+            title: '주간 학습 패턴 (로그인 및 과제 수행)',
+            type: 'table',
+            columns: ['요일', '로그인 횟수', '총 학습 시간', '특이사항'],
+            data: [
+              { day: '월', login: '1회', time: '15분', note: '과제만 빠르게 클릭' },
+              { day: '화', login: '0회', time: '0분', note: '-' },
+              { day: '수', login: '2회', time: '20분', note: '챗봇 질문 30회 폭주' },
+              { day: '목', login: '0회', time: '0분', note: '-' },
+              { day: '금', login: '1회', time: '5분', note: '마감 5분 전 찍기 제출' }
+            ]
           }
         ]
       }

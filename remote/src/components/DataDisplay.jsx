@@ -13,9 +13,9 @@ function DataDisplay({ dataset }) {
         {dataset.description}
       </p>
       
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '1.5rem', paddingRight: '0.5rem' }}>
         {dataset.sections.map((sec, idx) => (
-          <div key={idx} style={{ background: 'rgba(255,255,255,0.6)', padding: '2rem', borderRadius: '16px', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-md)' }}>
+          <div key={idx} style={{ background: 'rgba(255,255,255,0.6)', padding: '1.5rem', borderRadius: '16px', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-md)' }}>
             <h3 style={{ fontSize: '1.25rem', marginBottom: '1.5rem', borderBottom: '3px solid var(--primary)', display: 'inline-block', paddingBottom: '0.4rem' }}>
               {sec.title}
             </h3>

@@ -12,9 +12,17 @@ function DashboardPage({ userInfo }) {
   const datasets = subjectData.datasets;
   
   const [activeTab, setActiveTab] = useState(0);
-  const [formValues, setFormValues] = useState({});
+  const [formValues, setFormValues] = useState(() => {
+    const saved = localStorage.getItem(`dikw_${userInfo.subject}_${userInfo.name}`);
+    if (saved) return JSON.parse(saved);
+    return {};
+  });
   const [isExporting, setIsExporting] = useState(false);
   const captureRef = useRef(null);
+
+  React.useEffect(() => {
+    localStorage.setItem(`dikw_${userInfo.subject}_${userInfo.name}`, JSON.stringify(formValues));
+  }, [formValues, userInfo.subject, userInfo.name]);
 
   const handleFormChange = (datasetId, name, value) => {
     setFormValues(prev => ({

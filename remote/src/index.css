@@ -95,9 +95,9 @@ textarea {
 
 /* Layout */
 .container {
-  max-width: 1600px;
+  max-width: 100%;
   margin: 0 auto;
-  padding: 1rem 2rem;
+  padding: 1rem 1.5rem;
   width: 100%;
 }
 
@@ -163,7 +163,7 @@ textarea {
 .tabs {
   display: flex;
   gap: 1rem;
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
 }
 
 .tab {
@@ -190,8 +190,9 @@ textarea {
 
 .dashboard-content {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2rem;
+  grid-template-columns: 2fr 1fr;
+  gap: 1.5rem;
+  align-items: start;
 }
 
 @media (max-width: 768px) {
