@@ -565,13 +565,18 @@
                 systemInstruction = "당신은 교수학습 설계 전문가입니다. 교사가 작성한 '학습자 상태(동기, 성취도)'와 '환경 분석' 내용을 평가하고, 이러한 맥락에서 유의해야 할 교육적 시사점을 제공하세요. 긍정적이고 건설적인 톤으로 핵심만 3~4문장으로 간략히 요약하여 한국어로 답변하세요.";
                 prompt = `[학습자 동기]: ${motivation}\n[학습자 성취도]: ${achievement}\n[환경 분석]: ${env}\n\n위 내용에 대한 교수학습 설계 측면의 피드백을 주세요.`;
             } else if (stepType === 'step3') {
+                const motivation = document.getElementById('learnerMotivation').value;
+                const achievement = document.getElementById('learnerAchievement').value;
+                const env = document.getElementById('envAnalysis').value;
+                
                 const intent = document.getElementById('intent').value; // T
                 const coreIdea = document.getElementById('coreIdea').value; // M
                 const question = document.getElementById('question').value; // M
                 const task = document.getElementById('taskAnalysis').value; // A
+                const aiTools = document.getElementById('aiTools').value; // A
                 
-                systemInstruction = "당신은 이해 중심 교육과정(UbD) 및 T-M-A(Transfer, Meaning Making, Acquisition) 프레임워크 전문가입니다. 교사가 작성한 [T:장기적 전이 목표], [M:영속적 이해 및 핵심질문], [A:습득해야 할 지식과 기능] 간의 정렬성(Alignment)을 평가하세요. 습득(A)이 의미구성(M)을 이끌고, 궁극적으로 전이(T)로 이어질 수 있도록 잘 설계되었는지 긍정적이고 건설적인 톤으로 3~4문장으로 한국어로 피드백하세요.";
-                prompt = `[T] 장기적 전이 목표: ${intent}\n[M] 영속적 이해: ${coreIdea}\n[M] 핵심 질문: ${question}\n[A] 과제 분석(필요 지식과 기능): ${task}\n\n위 내용이 T-M-A 모형에 맞게 정렬되었는지 피드백해 주세요.`;
+                systemInstruction = "당신은 이해 중심 교육과정(UbD) 및 T-M-A(Transfer, Meaning Making, Acquisition) 프레임워크 전문가입니다. 교사가 작성한 2단계의 '학습자 맥락(동기, 성취도)' 및 '환경 맥락'과, 3단계의 'T-M-A 설계안'을 함께 종합적으로 분석하세요. \n\n다음 두 가지 핵심 사항을 중점적으로 평가하고 피드백을 제공하세요:\n1. T-M-A 간의 내적 정렬성 (습득이 의미구성을 이끌고 전이로 연결되는가)\n2. 2단계 맥락 분석과의 연계성 (학습자의 수준/동기 및 환경 인프라에 맞게 활동과 AI·디지털 도구가 적절하게 매칭되었는가)\n\n긍정적이고 건설적인 톤으로, 구체적인 개선 방향을 포함해 3~4문장으로 한국어로 피드백하세요.";
+                prompt = `[학습자 및 환경 맥락 (Step 2)]\n- 학생 동기/관심도: ${motivation}\n- 학생 성취도/선수학습: ${achievement}\n- 학교 환경/인프라: ${env}\n\n[바라는 결과 (T-M-A) 설계안 (Step 3)]\n- T (장기적 전이 목표): ${intent}\n- M (의미구성 - 영속적 이해): ${coreIdea}\n- M (의미구성 - 핵심 질문): ${question}\n- A (습득 - 필요 지식 K / 기능 S): ${task}\n- A (습득 - 활용 AI·디지털 도구): ${aiTools}\n\n위 맥락(Step 2)과 TMA 설계안(Step 3)이 상호 유기적으로 정렬되어 있는지 평가하고 개선 방향에 대한 피드백을 주세요.`;
             }
 
             try {
