@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KERIS 거시적 차원 교수학습 설계안 생성기</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+        body { 
+            font-family: 'Pretendard', sans-serif; 
+            background-color: #f3f4f6; 
+        }
+        .step-section { display: none; }
+        .step-section.active { 
+            display: block; 
+            animation: fadeIn 0.4s ease-out; 
+        }
+        @keyframes fadeIn { 
+            from { opacity: 0; transform: translateY(15px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+        
+        /* KERIS Table Styles */
+        .keris-table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-top: 1rem; 
+            font-size: 0.95rem; 
+        }
+        .keris-table th, .keris-table td { 
+            border: 1px solid #374151; 
+            padding: 12px 16px; 
+            vertical-align: middle;
+        }
+        .keris-table th { 
+            background-color: #0ea5e9; 
+            color: white; 
+            text-align: center; 
+            font-weight: 600; 
+            width: 15%; 
+        }
+        .keris-table td { 
+            background-color: white; 
+            width: 35%; 
+        }
+        /* AI Feedback Container */
+        .ai-feedback {
+            background-color: #f0fdf4;
+            border-left: 4px solid #22c55e;
+            padding: 1rem;
+            margin-top: 1rem;
+            border-radius: 0.25rem;
+            display: none;
+        }
+        .loading-spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border-left-color: #3b82f6;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* T-M-A Arrow Styles */
+        .tma-arrow {
+            display: flex;
+            justify-content: center;
+            margin: -10px 0;
+            position: relative;
+            z-index: 10;
+        }
+        .tma-arrow svg {
+            width: 40px;
+            height: 40px;
+            color: #d1d5db; /* gray-300 */
+        }
+        
+        /* Spin Slow for Gear Icon */
+        .animate-spin-slow {
+            animation: spin-slow 8s linear infinite;
+        }
+        .animate-spin-slow:hover {
+            animation: spin-slow 2s linear infinite;
+        }
+        @keyframes spin-slow {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <!-- API Settings Button -->
+    <div class="fixed top-4 right-4 z-50">
+        <button id="btn-settings" class="bg-white/90 backdrop-blur border border-gray-200 text-gray-700 px-3 py-2 rounded-lg shadow-md hover:bg-gray-50 flex items-center gap-1.5 text-xs font-bold transition">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500 animate-spin-slow" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            API 설정
+        </button>
+    </div>
+
+    <!-- API Settings Modal -->
+    <div id="settings-modal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center hidden">
+        <div class="bg-white rounded-2xl max-w-md w-full mx-4 p-6 shadow-2xl border border-gray-100 animate-fadeIn">
+            <h3 class="text-lg font-bold text-gray-800 mb-2 flex items-center gap-2">
+                🔑 Upstage API 설정
+            </h3>
+            <p class="text-xs text-gray-500 mb-4 leading-relaxed">
+                AI 피드백 기능은 Upstage Solar 모델을 활용하여 제공됩니다. 본인만의 API 키를 사용하시려면 아래에 입력하세요. 입력하지 않을 경우 기본 제공되는 데모 API 키가 사용됩니다.
+            </p>
+            <div class="mb-4">
+                <label class="block text-xs font-bold text-gray-700 mb-1.5">Upstage API Key</label>
+                <input type="password" id="input-api-key" class="w-full border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition" placeholder="up_...">
+                <p class="text-[11px] text-gray-400 mt-1">※ 키는 브라우저의 로컬 저장소(localStorage)에 안전하게 저장됩니다.</p>
+            </div>
+            <div class="flex justify-end gap-2">
+                <button type="button" id="btn-settings-cancel" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-xs font-bold transition">닫기</button>
+                <button type="button" id="btn-settings-save" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow-md">저장</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl p-6 md:p-10">
+        <div class="text-center mb-8">
+            <h1 class="text-3xl md:text-4xl font-extrabold text-gray-800 mb-2 tracking-tight">AI·디지털 도구 활용 설계안</h1>
+            <p class="text-md text-gray-500 font-medium">이해 중심 교육과정(UbD) 백워드 설계 기반 단계별 작성 도우미</p>
+            <div class="mt-2 text-sm text-green-600 bg-green-50 inline-block px-3 py-1 rounded-full border border-green-200">
+                <span class="font-bold">✓</span> 입력 내용이 자동으로 임시 저장됩니다.
+            </div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="flex justify-between mb-10 border-b border-gray-200">
+            <div id="nav-1" class="w-1/3 text-center font-bold text-blue-600 border-b-4 border-blue-600 pb-3 transition-colors duration-300">
+                1단계. 기본 정보
+            </div>
+            <div id="nav-2" class="w-1/3 text-center font-bold text-gray-400 border-b-4 border-transparent pb-3 transition-colors duration-300">
+                2단계. 맥락 분석
+            </div>
+            <div id="nav-3" class="w-1/3 text-center font-bold text-gray-400 border-b-4 border-transparent pb-3 transition-colors duration-300">
+                3단계. 바라는 결과 (T-M-A)
+            </div>
+        </div>
+
+        <form id="designForm">
+            <!-- Step 1: 기본 정보 및 성취기준 -->
+            <div id="step-1" class="step-section active">
+                <div class="mb-6 bg-blue-50 p-4 rounded-lg border border-blue-100">
+                    <p class="text-blue-800 text-sm font-medium">💡 2학기에 실제로 지도할 구체적인 학급과 과목을 상상하며 기본 정보와 도달해야 할 성취기준을 입력해 보세요.</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">학년-학기</label>
+                        <input type="text" id="grade" class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition autosave" placeholder="예: 고2-2학기">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">단원</label>
+                        <input type="text" id="unit" class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition autosave" placeholder="예: 3단원 국가와 경제 활동">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">대상</label>
+                        <input type="text" id="target" class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition autosave" placeholder="예: 경제 선택반 20명">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">지도교사</label>
+                        <input type="text" id="teacher" class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition autosave" placeholder="선생님의 성함을 입력하세요">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">성취기준 <span class="text-gray-400 font-normal ml-1">(출발점)</span></label>
+                    <textarea id="standard" rows="3" class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition resize-none autosave" placeholder="예: [12경제03-02] 경제의 순환 과정을 이해하고 경제 주체의 지출과 소득으로 국민경제활동 수준을 파악한다."></textarea>
+                </div>
+                <div class="mt-10 flex justify-end">
+                    <button type="button" id="btn-next-1" class="bg-blue-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-blue-700 transition shadow-md">다음 단계 ➔</button>
+                </div>
+            </div>
+
+            <!-- Step 2: 맥락 분석 (학습자, 환경) -->
+            <div id="step-2" class="step-section">
+                <div class="mb-6 bg-blue-50 p-4 rounded-lg border border-blue-100 flex justify-between items-center">
+                    <p class="text-blue-800 text-sm font-medium">💡 목표 도달을 위해 학습자의 현재 상태(As-Is)와 주어진 환경을 구체적으로 분석합니다.<br><span class="text-xs text-blue-600 mt-1 block">* 함양해야 할 '목표 역량'은 다음 3단계(T: 장기적 전이 목표)에서 설정합니다.</span></p>
+                    <button type="button" id="btn-feedback-step2" class="bg-purple-600 text-white px-4 py-2 rounded-md text-sm font-bold hover:bg-purple-700 flex items-center gap-2 transition">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11.3 1.046A12.014 12.014 0 0010.375 1V1c-.247 0-.486.012-.72.036A12.017 12.017 0 005.155 3.01C4.165 3.86 3.493 5.093 3.109 6.5c-.385 1.408-.385 2.876 0 4.283.384 1.408 1.056 2.641 2.046 3.49a12.016 12.016 0 004.5 1.974c.234.024.473.036.72.036s.486-.012.72-.036a12.016 12.016 0 004.5-1.974c.99-.85 1.662-2.082 2.046-3.49.385-1.407.385-2.875 0-4.283-.384-1.407-1.056-2.64-2.046-3.49a12.017 12.017 0 00-4.5-1.974c-.234-.024-.473-.036-.72-.036zm-3.5 10A1.5 1.5 0 109 11.5c0-.828-.672-1.5-1.5-1.5zm6 0A1.5 1.5 0 1014 11.5c0-.828-.672-1.5-1.5-1.5zm-3-5.5a1 1 0 00-1 1v1a1 1 0 102 0v-1a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
+                        AI 맥락 분석 피드백
+                    </button>
+                </div>
+                <div class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-2">학습자 분석 ①: 동기 및 관심도</label>
+                            <textarea id="learnerMotivation" rows="3" class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition autosave" placeholder="예: 경제 과목에 대한 전반적인 흥미도는 높으나, 수식이나 그래프가 나오는 부분에서 학습 의욕이 저하되는 경향이 있음."></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-2">학습자 분석 ②: 성취도 및 선수 학습 수준</label>
+                            <textarea id="learnerAchievement" rows="3" class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition autosave" placeholder="예: 중학교 수준의 수요-공급 기본 개념은 인지하고 있으나, GDP 등 거시 경제 지표 산출 원리에 대한 사전 지식은 부족함."></textarea>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">환경 분석 <span class="text-gray-400 font-normal ml-1">(물리적/디지털 인프라)</span></label>
+                        <textarea id="envAnalysis" rows="3" class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition autosave" placeholder="예: 1인 1크롬북 환경 구축 완료. Google Workspace 계정 활성화. 모둠별 협업을 위한 이동식 책상 및 개별 모니터 구비."></textarea>
+                    </div>
+                </div>
+                <!-- AI Feedback Display for Step 2 -->
+                <div id="feedback-step2" class="ai-feedback mt-6">
+                    <div id="loading-step2" class="hidden flex items-center gap-3"><div class="loading-spinner"></div><span class="text-sm font-bold text-gray-600">AI가 분석 내용을 검토 중입니다...</span></div>
+                    <div id="content-step2" class="text-sm text-gray-800 whitespace-pre-wrap leading-relaxed"></div>
+                </div>
+
+                <div class="mt-8 flex justify-between">
+                    <button type="button" id="btn-prev-2" class="bg-gray-200 text-gray-700 px-6 py-2 rounded-md hover:bg-gray-300 transition-colors font-bold shadow-sm">⬅ 이전</button>
+                    <button type="button" id="btn-next-2" class="bg-blue-600 text-white px-8 py-2 rounded-md hover:bg-blue-700 transition-colors font-bold shadow-sm">다음 단계 ➔</button>
+                </div>
+            </div>
+
+            <!-- Step 3: 바라는 결과 (T-M-A 백워드 설계) -->
+            <div id="step-3" class="step-section">
+                <div class="mb-6 bg-blue-50 p-4 rounded-lg border border-blue-100 flex justify-between items-center">
+                    <p class="text-blue-800 text-sm font-medium">💡 백워드 설계의 핵심입니다. T-M-A (전이-의미구성-습득) 모형에 따라 하향식(↓)으로 설계하지만, 성취는 상향식(↑)으로 이루어집니다.</p>
+                    <button type="button" id="btn-feedback-step3" class="bg-purple-600 text-white px-4 py-2 rounded-md text-sm font-bold hover:bg-purple-700 flex items-center gap-2 transition">
+                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11.3 1.046A12.014 12.014 0 0010.375 1V1c-.247 0-.486.012-.72.036A12.017 12.017 0 005.155 3.01C4.165 3.86 3.493 5.093 3.109 6.5c-.385 1.408-.385 2.876 0 4.283.384 1.408 1.056 2.641 2.046 3.49a12.016 12.016 0 004.5 1.974c.234.024.473.036.72.036s.486-.012.72-.036a12.016 12.016 0 004.5-1.974c.99-.85 1.662-2.082 2.046-3.49.385-1.407.385-2.875 0-4.283-.384-1.407-1.056-2.64-2.046-3.49a12.017 12.017 0 00-4.5-1.974c-.234-.024-.473-.036-.72-.036zm-3.5 10A1.5 1.5 0 109 11.5c0-.828-.672-1.5-1.5-1.5zm6 0A1.5 1.5 0 1014 11.5c0-.828-.672-1.5-1.5-1.5zm-3-5.5a1 1 0 00-1 1v1a1 1 0 102 0v-1a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
+                        AI TMA 정렬성 피드백
+                    </button>
+                </div>
+                
+                <div class="mb-6 bg-gray-50 border border-gray-300 rounded-lg p-4 shadow-sm">
+                    <p class="text-sm font-bold text-gray-600 mb-2 flex items-center gap-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor"><path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z" /></svg>
+                        [참고] 1단계에서 설정한 성취기준
+                    </p>
+                    <p id="display-standard-step3" class="text-sm text-gray-800 font-medium whitespace-pre-wrap bg-white p-3 rounded border border-gray-200">(1단계에서 성취기준을 입력하면 이곳에 표시됩니다.)</p>
+                </div>
+
+                <div class="space-y-4">
+                    <!-- T: Transfer -->
+                    <div class="bg-green-50 border border-green-200 rounded-lg p-5">
+                        <label class="block text-lg font-black text-green-800 mb-2">T: 장기적 전이 목표 (단원 재구성 의도)</label>
+                        <p class="text-sm text-green-700 mb-3 font-medium">장기적으로 학습자가 스스로 실제 삶과 상황 속에서 사용하기를 바라는 목표</p>
+                        <textarea id="intent" rows="3" class="w-full border border-green-300 rounded-lg p-3 focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition resize-none autosave" placeholder="예: 학생들은 일상생활 속 선택의 순간에 편익과 기회비용을 계산하고... 합리적인 경제적 결정을 내릴 수 있다."></textarea>
+                    </div>
+
+                    <!-- Arrow -->
+                    <div class="tma-arrow">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                        </svg>
+                    </div>
+
+                    <!-- M: Meaning Making -->
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-5">
+                        <label class="block text-lg font-black text-blue-800 mb-2">M: 의미 구성 (핵심 질문과 영속적 이해)</label>
+                        <p class="text-sm text-blue-700 mb-3 font-medium">질문 해결/이해를 위해서 필요한 지식/기능을 도출하기 위한 핵심 아이디어</p>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-1">핵심 질문 (Q)</label>
+                                <textarea id="question" rows="2" class="w-full border border-blue-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none transition autosave" placeholder="예: 내가 오늘 내린 선택은 정말 공짜였을까? 내 선택의 기회비용은 무엇이었을까?"></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-1">영속적 이해 (U)</label>
+                                <textarea id="coreIdea" rows="2" class="w-full border border-blue-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none transition autosave" placeholder="예: 모든 경제적 선택에는 편익 뿐만 아니라 명시적/암묵적 비용이 수반되므로, 이를 모두 고려한 선택이 합리적이다."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Arrow -->
+                    <div class="tma-arrow">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                        </svg>
+                    </div>
+
+                    <!-- A: Acquisition -->
+                    <div class="bg-orange-50 border border-orange-200 rounded-lg p-5">
+                        <label class="block text-lg font-black text-orange-800 mb-2">A: 습득 (과제 분석 - 필요 지식과 기능)</label>
+                        <p class="text-sm text-orange-700 mb-3 font-medium">질문 해결/이해를 위해서 필요한 구체적인 내용 및 활용 도구</p>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-1">필요 지식(K) 및 필요 기능(S)</label>
+                                <textarea id="taskAnalysis" rows="3" class="w-full border border-orange-300 rounded-lg p-3 focus:ring-2 focus:ring-orange-500 outline-none transition autosave" placeholder="예: [지식 K] 편익, 기회비용, 암묵적 비용, 명시적 비용&#13;&#10;[기능 S] 계산하여 비교하기, 기사를 통한 사례 분석하기"></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-1">AI·디지털 도구</label>
+                                <textarea id="aiTools" rows="2" class="w-full border border-orange-300 rounded-lg p-3 focus:ring-2 focus:ring-orange-500 outline-none transition autosave" placeholder="예: Google Sheets (데이터 분석), 대화형 AI 챗봇 (개별 피드백)"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                 <!-- AI Feedback Display for Step 3 -->
+                 <div id="feedback-step3" class="ai-feedback mt-6">
+                    <div id="loading-step3" class="hidden flex items-center gap-3"><div class="loading-spinner"></div><span class="text-sm font-bold text-gray-600">AI가 T-M-A 간의 정렬성(Alignment)을 분석 중입니다...</span></div>
+                    <div id="content-step3" class="text-sm text-gray-800 whitespace-pre-wrap leading-relaxed"></div>
+                </div>
+
+                <div class="mt-10 flex justify-between">
+                    <button type="button" id="btn-prev-3" class="bg-gray-100 text-gray-700 border border-gray-300 px-6 py-3 rounded-lg font-bold hover:bg-gray-200 transition">⬅ 이전</button>
+                    <button type="button" id="btn-generate" class="bg-gradient-to-r from-indigo-600 to-blue-600 text-white px-10 py-3 rounded-lg font-extrabold text-lg hover:from-indigo-700 hover:to-blue-700 shadow-xl transition transform hover:-translate-y-1">✨ KERIS 지도안 산출하기</button>
+                </div>
+            </div>
+        </form>
+
+        <!-- Output Section (결과창) -->
+        <div id="output-section" class="hidden mt-12 pt-8 border-t-2 border-dashed border-gray-300">
+            <div class="flex flex-col md:flex-row justify-between items-center mb-6 bg-green-50 p-4 rounded-lg border border-green-200">
+                <h2 class="text-2xl font-black text-green-800 mb-4 md:mb-0">🎉 설계안 작성이 완료되었습니다!</h2>
+                <button onclick="window.print()" class="bg-white text-green-700 border border-green-600 px-5 py-2 rounded-lg font-bold hover:bg-green-600 hover:text-white transition shadow-sm flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5 4v3H4a2 2 0 00-2 2v3a2 2 0 002 2h1v2a2 2 0 002 2h6a2 2 0 002-2v-2h1a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a2 2 0 00-2-2H7a2 2 0 00-2 2zm8 0H7v3h6V4zm0 8H7v4h6v-4z" clip-rule="evenodd" /></svg>
+                    PDF로 저장하기
+                </button>
+            </div>
+            
+            <div class="overflow-x-auto bg-white p-2 border border-gray-800 rounded-md print:border-none print:p-0">
+                <div class="text-center font-bold text-lg border-b border-gray-800 pb-2 mb-2 print:text-xl">AI·디지털 도구 활용 단원 교수·학습 설계안(양식)</div>
+                <div class="text-center font-bold bg-cyan-400 text-white py-2 rounded-full w-3/4 mx-auto mb-4 print:bg-gray-200 print:text-black">
+                    ( <span id="title-unit"></span> )과 AI·디지털 도구 활용 단원 교수·학습 설계안
+                </div>
+
+                <!-- KERIS Table format matching -->
+                <table class="keris-table">
+                    <tbody>
+                        <tr>
+                            <th>학년-학기</th>
+                            <td id="out-grade" class="font-medium"></td>
+                            <th>단원</th>
+                            <td id="out-unit" class="font-medium"></td>
+                        </tr>
+                        <tr>
+                            <th>대상</th>
+                            <td id="out-target"></td>
+                            <th>지도교사</th>
+                            <td id="out-teacher"></td>
+                        </tr>
+                        <tr>
+                            <th>핵심<br>아이디어</th>
+                            <td id="out-coreIdea"></td>
+                            <th>성취기준</th>
+                            <td id="out-standard"></td>
+                        </tr>
+                        <tr>
+                            <th>탐구 질문</th>
+                            <td id="out-question"></td>
+                            <th>AI·디지털 도구</th>
+                            <td id="out-aiTools" style="white-space: pre-wrap;"></td> 
+                        </tr>
+                        <tr>
+                            <th>단원 재구성<br>의도</th>
+                            <td id="out-intent"></td>
+                            <th>학생 및 과제<br>분석</th>
+                            <td id="out-combinedAnalysis" style="white-space: pre-wrap;"></td> 
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const steps = [document.getElementById('step-1'), document.getElementById('step-2'), document.getElementById('step-3')];
+        const navs = [document.getElementById('nav-1'), document.getElementById('nav-2'), document.getElementById('nav-3')];
+        const form = document.getElementById('designForm');
+        const outputSection = document.getElementById('output-section');
+
+        // API Settings Elements
+        const settingsModal = document.getElementById('settings-modal');
+        const btnSettings = document.getElementById('btn-settings');
+        const btnSettingsCancel = document.getElementById('btn-settings-cancel');
+        const btnSettingsSave = document.getElementById('btn-settings-save');
+        const inputApiKey = document.getElementById('input-api-key');
+
+        // Default API Key (User provided)
+        const DEFAULT_API_KEY = "up_jskRfswj0ZmfhlfDvjyVBSY81iuh2";
+
+        // Initialize API Settings from LocalStorage
+        function initApiSettings() {
+            const savedKey = localStorage.getItem('upstage_api_key');
+            if (savedKey) {
+                inputApiKey.value = savedKey;
+            } else {
+                inputApiKey.value = DEFAULT_API_KEY;
+            }
+        }
+
+        // Open API settings modal
+        btnSettings.addEventListener('click', () => {
+            initApiSettings();
+            settingsModal.classList.remove('hidden');
+        });
+
+        // Close modal
+        btnSettingsCancel.addEventListener('click', () => {
+            settingsModal.classList.add('hidden');
+        });
+
+        settingsModal.addEventListener('click', (e) => {
+            if (e.target === settingsModal) {
+                settingsModal.classList.add('hidden');
+            }
+        });
+
+        // Save API key
+        btnSettingsSave.addEventListener('click', () => {
+            const keyVal = inputApiKey.value.trim();
+            if (keyVal) {
+                localStorage.setItem('upstage_api_key', keyVal);
+                alert('API 키가 성공적으로 저장되었습니다!');
+            } else {
+                localStorage.removeItem('upstage_api_key');
+                alert('API 키 설정이 해제되었습니다. 기본 데모 API 키를 사용합니다.');
+            }
+            settingsModal.classList.add('hidden');
+        });
+
+        // LocalStorage Logic for form fields
+        const inputFields = document.querySelectorAll('.autosave');
+        const STORAGE_KEY = 'keris_tma_design_data_v2'; 
+
+        function saveToLocal() {
+            try {
+                const data = {};
+                inputFields.forEach(field => {
+                    data[field.id] = field.value;
+                });
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+                console.log("자동 저장 완료");
+            } catch (e) {
+                console.warn("로컬 스토리지 저장 실패:", e);
+            }
+        }
+
+        function loadFromLocal() {
+            try {
+                // Initialize form values
+                const savedDataStr = localStorage.getItem(STORAGE_KEY);
+                if (savedDataStr) {
+                    const savedData = JSON.parse(savedDataStr);
+                    inputFields.forEach(field => {
+                        if (savedData[field.id] !== undefined) {
+                            field.value = savedData[field.id];
+                        }
+                    });
+                    console.log("저장된 데이터 불러오기 완료");
+                }
+                
+                // Initialize API settings
+                initApiSettings();
+            } catch (e) {
+                console.warn("로컬 스토리지 불러오기 실패:", e);
+            }
+        }
+
+        // Attach listeners for autosave
+        inputFields.forEach(field => {
+            field.addEventListener('input', saveToLocal);
+        });
+        
+        // Load data on start
+        window.addEventListener('DOMContentLoaded', loadFromLocal);
+
+        // Navigation Functions
+        function updateNav(currentStep) {
+            navs.forEach((nav, index) => {
+                const stepNum = index + 1;
+                if (stepNum === currentStep) {
+                    nav.className = "w-1/3 text-center font-bold text-blue-600 border-b-4 border-blue-600 pb-3 transition-colors duration-300";
+                } else if (stepNum < currentStep) {
+                    nav.className = "w-1/3 text-center font-bold text-blue-800 border-b-4 border-blue-800 pb-3 transition-colors duration-300";
+                } else {
+                    nav.className = "w-1/3 text-center font-bold text-gray-400 border-b-4 border-transparent pb-3 transition-colors duration-300";
+                }
+            });
+        }
+
+        function navigateToStep(step) {
+            steps.forEach(el => el.classList.remove('active'));
+            document.getElementById(`step-${step}`).classList.add('active');
+            updateNav(step);
+            
+            // Step 3 transition
+            if (step === 3) {
+                const standardValue = document.getElementById('standard').value.trim();
+                const displayArea = document.getElementById('display-standard-step3');
+                if (standardValue) {
+                    displayArea.textContent = standardValue;
+                    displayArea.classList.remove('text-gray-400');
+                    displayArea.classList.add('text-gray-800');
+                } else {
+                    displayArea.textContent = "(입력된 성취기준이 없습니다. 1단계에서 입력해주세요.)";
+                    displayArea.classList.add('text-gray-400');
+                    displayArea.classList.remove('text-gray-800');
+                }
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Event Listeners for Navigation Buttons
+        document.getElementById('btn-next-1').addEventListener('click', () => navigateToStep(2));
+        document.getElementById('btn-prev-2').addEventListener('click', () => navigateToStep(1));
+        document.getElementById('btn-next-2').addEventListener('click', () => navigateToStep(3));
+        document.getElementById('btn-prev-3').addEventListener('click', () => navigateToStep(2));
+        document.getElementById('btn-generate').addEventListener('click', generateOutput);
+        document.getElementById('btn-feedback-step2').addEventListener('click', () => getFeedback('step2'));
+        document.getElementById('btn-feedback-step3').addEventListener('click', () => getFeedback('step3'));
+
+        // Generate Final Output
+        function generateOutput() {
+            const getVal = (id) => document.getElementById(id).value.trim() || "(미입력)";
+
+            document.getElementById('out-grade').textContent = getVal('grade');
+            document.getElementById('out-unit').textContent = getVal('unit');
+            document.getElementById('out-target').textContent = getVal('target');
+            document.getElementById('out-teacher').textContent = getVal('teacher');
+            document.getElementById('out-standard').textContent = getVal('standard');
+            document.getElementById('out-coreIdea').textContent = getVal('coreIdea');
+            document.getElementById('out-question').textContent = getVal('question');
+            document.getElementById('out-intent').textContent = getVal('intent');
+            document.getElementById('out-aiTools').textContent = getVal('aiTools');
+            
+            document.getElementById('title-unit').textContent = document.getElementById('unit').value.trim() || "단원명 미입력";
+
+            // Combine Learner Analysis and Task Analysis
+            const motivationVal = document.getElementById('learnerMotivation').value.trim();
+            const achievementVal = document.getElementById('learnerAchievement').value.trim();
+            const taskVal = document.getElementById('taskAnalysis').value.trim();
+            
+            let combined = "";
+            if(motivationVal || achievementVal) {
+                combined += `[학생 분석]\n`;
+                if(motivationVal) combined += `- 동기 및 관심도: ${motivationVal}\n`;
+                if(achievementVal) combined += `- 선수학습 및 성취도: ${achievementVal}\n`;
+                combined += `\n`;
+            }
+            if(taskVal) combined += `[과제 분석 (K/S)]\n${taskVal}`;
+            
+            document.getElementById('out-combinedAnalysis').textContent = combined.trim() ? combined : "(미입력)";
+            
+            // Show Output
+            form.style.display = 'none';
+            document.querySelector('.flex.justify-between.mb-10').style.display = 'none';
+            outputSection.classList.remove('hidden');
+            outputSection.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Upstage AI API Logic
+        async function getFeedback(stepType) {
+            const feedbackContainer = document.getElementById(`feedback-${stepType}`);
+            const loadingIndicator = document.getElementById(`loading-${stepType}`);
+            const contentArea = document.getElementById(`content-${stepType}`);
+            
+            feedbackContainer.style.display = 'block';
+            loadingIndicator.classList.remove('hidden');
+            contentArea.textContent = "";
+
+            let prompt = "";
+            let systemInstruction = "";
+
+            if (stepType === 'step2') {
+                const motivation = document.getElementById('learnerMotivation').value;
+                const achievement = document.getElementById('learnerAchievement').value;
+                const env = document.getElementById('envAnalysis').value;
+                
+                systemInstruction = "당신은 교수학습 설계 전문가입니다. 교사가 작성한 '학습자 상태(동기, 성취도)'와 '환경 분석' 내용을 평가하고, 이러한 맥락에서 유의해야 할 교육적 시사점을 제공하세요. 긍정적이고 건설적인 톤으로 핵심만 3~4문장으로 간략히 요약하여 한국어로 답변하세요.";
+                prompt = `[학습자 동기]: ${motivation}\n[학습자 성취도]: ${achievement}\n[환경 분석]: ${env}\n\n위 내용에 대한 교수학습 설계 측면의 피드백을 주세요.`;
+            } else if (stepType === 'step3') {
+                const intent = document.getElementById('intent').value; // T
+                const coreIdea = document.getElementById('coreIdea').value; // M
+                const question = document.getElementById('question').value; // M
+                const task = document.getElementById('taskAnalysis').value; // A
+                
+                systemInstruction = "당신은 이해 중심 교육과정(UbD) 및 T-M-A(Transfer, Meaning Making, Acquisition) 프레임워크 전문가입니다. 교사가 작성한 [T:장기적 전이 목표], [M:영속적 이해 및 핵심질문], [A:습득해야 할 지식과 기능] 간의 정렬성(Alignment)을 평가하세요. 습득(A)이 의미구성(M)을 이끌고, 궁극적으로 전이(T)로 이어질 수 있도록 잘 설계되었는지 긍정적이고 건설적인 톤으로 3~4문장으로 한국어로 피드백하세요.";
+                prompt = `[T] 장기적 전이 목표: ${intent}\n[M] 영속적 이해: ${coreIdea}\n[M] 핵심 질문: ${question}\n[A] 과제 분석(필요 지식과 기능): ${task}\n\n위 내용이 T-M-A 모형에 맞게 정렬되었는지 피드백해 주세요.`;
+            }
+
+            try {
+                // Get the saved key or use the default one
+                const savedKey = localStorage.getItem('upstage_api_key');
+                const apiKey = savedKey ? savedKey.trim() : DEFAULT_API_KEY;
+                
+                if (!apiKey) {
+                    throw new Error("설정된 Upstage API Key가 없습니다. 상단의 API 설정 버튼을 통해 등록해주세요.");
+                }
+                
+                const apiUrl = `https://api.upstage.ai/v1/chat/completions`;
+                
+                const payload = {
+                    model: "solar-pro3",
+                    messages: [
+                        { role: "system", content: systemInstruction },
+                        { role: "user", content: prompt }
+                    ],
+                    reasoning_effort: "high"
+                };
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${apiKey}`
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    const errData = await response.json().catch(() => ({}));
+                    const errMsg = errData.error?.message || `HTTP 에러 ${response.status}`;
+                    throw new Error(`API 호출 실패: ${errMsg}`);
+                }
+
+                const result = await response.json();
+                const aiResponseText = result.choices?.[0]?.message?.content;
+
+                loadingIndicator.classList.add('hidden');
+                if (aiResponseText) {
+                    contentArea.innerHTML = `<span class="font-bold text-green-700">💡 AI 전문가의 코멘트:</span><br/>${aiResponseText.replace(/\n/g, '<br/>')}`;
+                } else {
+                    contentArea.textContent = "피드백을 생성하지 못했습니다. 내용을 다시 확인해 주세요.";
+                }
+
+            } catch (error) {
+                loadingIndicator.classList.add('hidden');
+                contentArea.textContent = `오류가 발생했습니다: ${error.message}`;
+                console.error("Upstage API Error:", error);
+            }
+        }
+    </script>
+</body>
+</html>
