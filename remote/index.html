@@ -304,12 +304,20 @@
 
         <!-- Output Section (결과창) -->
         <div id="output-section" class="hidden mt-12 pt-8 border-t-2 border-dashed border-gray-300">
-            <div class="flex flex-col md:flex-row justify-between items-center mb-6 bg-green-50 p-4 rounded-lg border border-green-200">
+            <div class="flex flex-col md:flex-row justify-between items-center mb-6 bg-green-50 p-4 rounded-lg border border-green-200 print:hidden">
                 <h2 class="text-2xl font-black text-green-800 mb-4 md:mb-0">🎉 설계안 작성이 완료되었습니다!</h2>
-                <button onclick="window.print()" class="bg-white text-green-700 border border-green-600 px-5 py-2 rounded-lg font-bold hover:bg-green-600 hover:text-white transition shadow-sm flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5 4v3H4a2 2 0 00-2 2v3a2 2 0 002 2h1v2a2 2 0 002 2h6a2 2 0 002-2v-2h1a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a2 2 0 00-2-2H7a2 2 0 00-2 2zm8 0H7v3h6V4zm0 8H7v4h6v-4z" clip-rule="evenodd" /></svg>
-                    PDF로 저장하기
-                </button>
+                <div class="flex flex-wrap gap-3">
+                    <button type="button" id="btn-edit-back" class="bg-white text-gray-700 border border-gray-300 px-5 py-2 rounded-lg font-bold hover:bg-gray-100 transition shadow-sm flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                        수정하러 돌아가기
+                    </button>
+                    <button onclick="window.print()" class="bg-blue-600 text-white px-5 py-2 rounded-lg font-bold hover:bg-blue-700 transition shadow-sm flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5 4v3H4a2 2 0 00-2 2v3a2 2 0 002 2h1v2a2 2 0 002 2h6a2 2 0 002-2v-2h1a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a2 2 0 00-2-2H7a2 2 0 00-2 2zm8 0H7v3h6V4zm0 8H7v4h6v-4z" clip-rule="evenodd" /></svg>
+                        PDF로 저장하기
+                    </button>
+                </div>
             </div>
             
             <div class="overflow-x-auto bg-white p-2 border border-gray-800 rounded-md print:border-none print:p-0">
@@ -353,6 +361,57 @@
                         </tr>
                     </tbody>
                 </table>
+            </div>
+
+            <!-- Self Checklist Section -->
+            <div class="mt-8 bg-gray-50 border border-gray-300 rounded-xl p-6 print:mt-12 print:border-gray-400">
+                <h3 class="text-lg font-extrabold text-gray-800 mb-4 flex items-center gap-2 border-b border-gray-300 pb-2 print:text-lg">
+                    <span class="text-blue-600 print:hidden">📋</span> 교수학습 설계안 자가 검토 체크리스트
+                </h3>
+                <div class="space-y-3">
+                    <label class="flex items-start gap-3 p-2 hover:bg-white rounded-lg transition cursor-pointer">
+                        <input type="checkbox" class="mt-1 h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 print:h-5 print:w-5">
+                        <span class="text-sm text-gray-700 leading-relaxed font-medium">
+                            <strong class="text-gray-900 font-bold">핵심 아이디어:</strong> 이번 수업이 다 끝나고 몇 년이 지나도 학생들의 머릿속에 꼭 남기고 싶은 뼈대 있는 진리나 본질을 한 문장으로 명확히 적었는가?
+                        </span>
+                    </label>
+                    <label class="flex items-start gap-3 p-2 hover:bg-white rounded-lg transition cursor-pointer">
+                        <input type="checkbox" class="mt-1 h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 print:h-5 print:w-5">
+                        <span class="text-sm text-gray-700 leading-relaxed font-medium">
+                            <strong class="text-gray-900 font-bold">탐구 질문:</strong> 질문에 대한 응답이 다양하게 나오는가? 단원 전체를 관통하는가? 학생들의 탐구를 자극하는가?
+                        </span>
+                    </label>
+                    <label class="flex items-start gap-3 p-2 hover:bg-white rounded-lg transition cursor-pointer">
+                        <input type="checkbox" class="mt-1 h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 print:h-5 print:w-5">
+                        <span class="text-sm text-gray-700 leading-relaxed font-medium">
+                            <strong class="text-gray-900 font-bold">성취기준:</strong> 성취기준이 핵심 아이디어/탐구질문 및 과제 분석과 어긋남 없이 일관성을 이루는가?
+                        </span>
+                    </label>
+                    <label class="flex items-start gap-3 p-2 hover:bg-white rounded-lg transition cursor-pointer">
+                        <input type="checkbox" class="mt-1 h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 print:h-5 print:w-5">
+                        <span class="text-sm text-gray-700 leading-relaxed font-medium">
+                            <strong class="text-gray-900 font-bold">단원 재구성 의도:</strong> 학생들이 실제 삶과 유사한 상황에서 스스로 지식을 적용할 수 있게끔 진술되었는가?
+                        </span>
+                    </label>
+                    <label class="flex items-start gap-3 p-2 hover:bg-white rounded-lg transition cursor-pointer">
+                        <input type="checkbox" class="mt-1 h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 print:h-5 print:w-5">
+                        <span class="text-sm text-gray-700 leading-relaxed font-medium">
+                            <strong class="text-gray-900 font-bold">학생 분석:</strong> 학습자의 동기, 역량, 성취도 등이 고루 들어간 분석 내지는 분석도구인가?
+                        </span>
+                    </label>
+                    <label class="flex items-start gap-3 p-2 hover:bg-white rounded-lg transition cursor-pointer">
+                        <input type="checkbox" class="mt-1 h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 print:h-5 print:w-5">
+                        <span class="text-sm text-gray-700 leading-relaxed font-medium">
+                            <strong class="text-gray-900 font-bold">과제 분석:</strong> 이번 단원을 통해 학생들이 반드시 마스터해야 할 필요 지식(명사 중심)과 기능(동사 중심)이 구체적으로 나열되었는가?
+                        </span>
+                    </label>
+                    <label class="flex items-start gap-3 p-2 hover:bg-white rounded-lg transition cursor-pointer">
+                        <input type="checkbox" class="mt-1 h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 print:h-5 print:w-5">
+                        <span class="text-sm text-gray-700 leading-relaxed font-medium">
+                            <strong class="text-gray-900 font-bold">AI 디지털 도구:</strong> 도구들이 단원의 탐구 질문을 해결하는데 필수적인 기능과 긴밀하게 연결되어 있는가?
+                        </span>
+                    </label>
+                </div>
             </div>
         </div>
     </div>
@@ -504,6 +563,14 @@
         document.getElementById('btn-generate').addEventListener('click', generateOutput);
         document.getElementById('btn-feedback-step2').addEventListener('click', () => getFeedback('step2'));
         document.getElementById('btn-feedback-step3').addEventListener('click', () => getFeedback('step3'));
+        
+        // Go back to Edit
+        document.getElementById('btn-edit-back').addEventListener('click', () => {
+            outputSection.classList.add('hidden');
+            form.style.display = 'block';
+            document.querySelector('.flex.justify-between.mb-10').style.display = 'flex';
+            navigateToStep(3);
+        });
 
         // Generate Final Output
         function generateOutput() {
