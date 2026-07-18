@@ -92,37 +92,7 @@
 </head>
 <body class="p-4 md:p-8">
 
-    <!-- API Settings Button -->
-    <div class="fixed top-4 right-4 z-50">
-        <button id="btn-settings" class="bg-white/90 backdrop-blur border border-gray-200 text-gray-700 px-3 py-2 rounded-lg shadow-md hover:bg-gray-50 flex items-center gap-1.5 text-xs font-bold transition">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500 animate-spin-slow" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-            API 설정
-        </button>
-    </div>
 
-    <!-- API Settings Modal -->
-    <div id="settings-modal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center hidden">
-        <div class="bg-white rounded-2xl max-w-md w-full mx-4 p-6 shadow-2xl border border-gray-100 animate-fadeIn">
-            <h3 class="text-lg font-bold text-gray-800 mb-2 flex items-center gap-2">
-                🔑 Upstage API 설정
-            </h3>
-            <p class="text-xs text-gray-500 mb-4 leading-relaxed">
-                AI 피드백 기능은 Upstage Solar 모델을 활용하여 제공됩니다. 본인만의 API 키를 사용하시려면 아래에 입력하세요. 입력하지 않을 경우 기본 제공되는 데모 API 키가 사용됩니다.
-            </p>
-            <div class="mb-4">
-                <label class="block text-xs font-bold text-gray-700 mb-1.5">Upstage API Key</label>
-                <input type="password" id="input-api-key" class="w-full border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition" placeholder="up_...">
-                <p class="text-[11px] text-gray-400 mt-1">※ 키는 브라우저의 로컬 저장소(localStorage)에 안전하게 저장됩니다.</p>
-            </div>
-            <div class="flex justify-end gap-2">
-                <button type="button" id="btn-settings-cancel" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-xs font-bold transition">닫기</button>
-                <button type="button" id="btn-settings-save" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow-md">저장</button>
-            </div>
-        </div>
-    </div>
 
     <div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl p-6 md:p-10">
         <div class="text-center mb-8">
@@ -423,55 +393,8 @@
         const form = document.getElementById('designForm');
         const outputSection = document.getElementById('output-section');
 
-        // API Settings Elements
-        const settingsModal = document.getElementById('settings-modal');
-        const btnSettings = document.getElementById('btn-settings');
-        const btnSettingsCancel = document.getElementById('btn-settings-cancel');
-        const btnSettingsSave = document.getElementById('btn-settings-save');
-        const inputApiKey = document.getElementById('input-api-key');
-
         // Default API Key (User provided)
         const DEFAULT_API_KEY = "up_jskRfswj0ZmfhlfDvjyVBSY81iuh2";
-
-        // Initialize API Settings from LocalStorage
-        function initApiSettings() {
-            const savedKey = localStorage.getItem('upstage_api_key');
-            if (savedKey) {
-                inputApiKey.value = savedKey;
-            } else {
-                inputApiKey.value = DEFAULT_API_KEY;
-            }
-        }
-
-        // Open API settings modal
-        btnSettings.addEventListener('click', () => {
-            initApiSettings();
-            settingsModal.classList.remove('hidden');
-        });
-
-        // Close modal
-        btnSettingsCancel.addEventListener('click', () => {
-            settingsModal.classList.add('hidden');
-        });
-
-        settingsModal.addEventListener('click', (e) => {
-            if (e.target === settingsModal) {
-                settingsModal.classList.add('hidden');
-            }
-        });
-
-        // Save API key
-        btnSettingsSave.addEventListener('click', () => {
-            const keyVal = inputApiKey.value.trim();
-            if (keyVal) {
-                localStorage.setItem('upstage_api_key', keyVal);
-                alert('API 키가 성공적으로 저장되었습니다!');
-            } else {
-                localStorage.removeItem('upstage_api_key');
-                alert('API 키 설정이 해제되었습니다. 기본 데모 API 키를 사용합니다.');
-            }
-            settingsModal.classList.add('hidden');
-        });
 
         // LocalStorage Logic for form fields
         const inputFields = document.querySelectorAll('.autosave');
@@ -504,8 +427,6 @@
                     console.log("저장된 데이터 불러오기 완료");
                 }
                 
-                // Initialize API settings
-                initApiSettings();
             } catch (e) {
                 console.warn("로컬 스토리지 불러오기 실패:", e);
             }
@@ -647,13 +568,7 @@
             }
 
             try {
-                // Get the saved key or use the default one
-                const savedKey = localStorage.getItem('upstage_api_key');
-                const apiKey = savedKey ? savedKey.trim() : DEFAULT_API_KEY;
-                
-                if (!apiKey) {
-                    throw new Error("설정된 Upstage API Key가 없습니다. 상단의 API 설정 버튼을 통해 등록해주세요.");
-                }
+                const apiKey = DEFAULT_API_KEY;
                 
                 const apiUrl = `https://api.upstage.ai/v1/chat/completions`;
                 
