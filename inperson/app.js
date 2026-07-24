@@ -22,7 +22,7 @@ const DEFAULT_STATE = {
       toolRole: ""
     }
   ],
-  apiKey: "up_jskRfswj0ZmfhlfDvjyVBSY81iuh2"
+  apiKey: "up_5wGHNHY9ZGB6CAPknaTbcfWIDL1Um"
 };
 
 let appState = JSON.parse(JSON.stringify(DEFAULT_STATE));
@@ -49,7 +49,7 @@ function loadFromLocalStorage() {
   }
 
   if (!appState.apiKey) {
-    appState.apiKey = "up_jskRfswj0ZmfhlfDvjyVBSY81iuh2";
+    appState.apiKey = "up_5wGHNHY9ZGB6CAPknaTbcfWIDL1Um";
   }
 
   document.getElementById("input-topic").value = appState.topic || "";
@@ -397,13 +397,13 @@ function generatePrompt() {
   let apiReferenceBlock = "";
   if (needsAiApi) {
     apiReferenceBlock = `- AI API 연동 가이드 및 레퍼런스 코드 (Upstage Solar-Pro3 API Integration):
-  * Upstage API Key: "${appState.apiKey || 'up_jskRfswj0ZmfhlfDvjyVBSY81iuh2'}"
+  * Upstage API Key: "${appState.apiKey || 'up_5wGHNHY9ZGB6CAPknaTbcfWIDL1Um'}"
   * Base URL: "https://api.upstage.ai/v1"
   * Target Model: "solar-pro3"
   * 백엔드(Code.gs) 또는 프론트엔드 API 호출 방식 레퍼런스:
 \`\`\`javascript
 // Upstage Chat Completions API Call Reference
-const apiKey = "${appState.apiKey || 'up_jskRfswj0ZmfhlfDvjyVBSY81iuh2'}";
+const apiKey = "${appState.apiKey || 'up_5wGHNHY9ZGB6CAPknaTbcfWIDL1Um'}";
 const response = await fetch("https://api.upstage.ai/v1/chat/completions", {
   method: "POST",
   headers: {
@@ -461,7 +461,7 @@ ${apiReferenceBlock}
 
 async function generateWithUpstage() {
   saveToLocalStorage();
-  const apiKey = appState.apiKey || "up_jskRfswj0ZmfhlfDvjyVBSY81iuh2";
+  const apiKey = appState.apiKey || "up_5wGHNHY9ZGB6CAPknaTbcfWIDL1Um";
 
   const loadingEl = document.getElementById("prompt-loading");
   loadingEl.style.display = "flex";
