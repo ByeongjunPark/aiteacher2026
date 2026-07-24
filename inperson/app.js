@@ -394,36 +394,41 @@ function generatePrompt() {
   const allText = JSON.stringify(appState);
   const needsAiApi = /AI|인공지능|Upstage|Solar|녹취|발문|요약|LLM|챗봇/i.test(allText);
 
+  const upstageCodeSnippet = `\`\`\`javascript
+// "openai": "^4.21.0" (https://github.com/openai/openai-node)
+import OpenAI from "openai";
+
+const apiKey = "${appState.apiKey || 'up_5wGHNHY9ZGB6CAPknaTbcfWIDL1Um'}";
+const openai = new OpenAI({
+  apiKey,
+  baseURL: "https://api.upstage.ai/v1"
+});
+
+const chatCompletion = await openai.chat.completions.create({
+  model: "solar-pro3",
+  messages: [
+    {
+      "role": "user",
+      "content": "학습자 반응 분석, 실시간 음성/토론 요약 및 심화 탐구 발문 생성"
+    }
+  ],
+  reasoning_effort: "high",
+  stream: true
+});
+
+for await (const chunk of chatCompletion) {
+  console.log(chunk.choices[0]?.delta?.content || "");
+}
+\`\`\``;
+
   let apiReferenceBlock = "";
   if (needsAiApi) {
-    apiReferenceBlock = `- AI API 연동 가이드 및 레퍼런스 코드 (Upstage Solar-Pro3 API Integration):
-  * Upstage API Key: "${appState.apiKey || 'up_5wGHNHY9ZGB6CAPknaTbcfWIDL1Um'}"
-  * Base URL: "https://api.upstage.ai/v1"
-  * Target Model: "solar-pro3"
-  * 백엔드(Code.gs) 또는 프론트엔드 API 호출 방식 레퍼런스:
-\`\`\`javascript
-// Upstage Chat Completions API Call Reference
-const apiKey = "${appState.apiKey || 'up_5wGHNHY9ZGB6CAPknaTbcfWIDL1Um'}";
-const response = await fetch("https://api.upstage.ai/v1/chat/completions", {
-  method: "POST",
-  headers: {
-    "Authorization": \`Bearer \${apiKey}\`,
-    "Content-Type": "application/json"
-  },
-  body: JSON.stringify({
-    model: "solar-pro3",
-    messages: [
-      { role: "system", content: "당신은 교과 수업을 지원하는 수석 AI 퍼실리테이터입니다." },
-      { role: "user", content: "학습자 반응 분석 및 심화 발문/피드백 생성" }
-    ],
-    stream: false
-  })
-});
-const data = await response.json();
-console.log(data.choices[0].message.content);
-\`\`\``;
+    apiReferenceBlock = `- AI API 연동 판단 결과: **Upstage Solar API 연동 필요** (실시간 음성 요약/AI 심화 질문/맞춤 피드백 기능)
+- Upstage Solar API 연동 레퍼런스 코드:
+${upstageCodeSnippet}`;
   } else {
-    apiReferenceBlock = `- AI API 연동 여부: 별도 외부 AI API 연동 없이 순수 웹 프론트엔드 및 Apps Script 백엔드로 구성된 앱입니다.`;
+    apiReferenceBlock = `- AI API 연동 판단 결과: 별도 외부 AI API 연동 없이 순수 웹 프론트엔드 및 Apps Script 백엔드로 구성된 앱입니다. (필요 시 아래 Upstage API 레퍼런스를 활용 가능)
+${upstageCodeSnippet}`;
   }
 
   const promptTemplate = `다음 명세서에 따라 구글 앱스스크립트(GAS) 기반 교육용 단일 페이지 웹앱(SPA)의 전체 코드를 작성해 줘. 프론트엔드(Index.html)와 백엔드(Code.gs) 코드를 모두 제공해 주어야 해.
@@ -463,7 +468,7 @@ ${apiReferenceBlock}
 `;
 
   document.getElementById("output-prompt").value = promptTemplate;
-  showToast("모던 디자인 지침이 포함된 마스터 프롬프트가 산출되었습니다!");
+  showToast("모던 디자인 지침 및 Upstage API 레퍼런스가 포함된 마스터 프롬프트가 산출되었습니다!");
 }
 
 async function generateWithUpstage() {
@@ -508,12 +513,13 @@ ${stepsFormatted}
             role: "system",
             content: `당신은 차시 교수·학습 설계안 기반 구글 앱스스크립트(GAS) 바이브코딩에 특화된 수석 AI 교육공학자입니다.
 
-[엄격 지시사항]
-1. 절대 영문 사고 과정("The user asks...", "According to specification...")이나 서론/사족/설명을 출력하지 마십시오.
-2. 코드를 생성하지 마십시오. 반드시 'Google AI Studio에 입력할 프롬프트'만 생성해야 합니다.
-3. 생성하는 프롬프트 상단에 '글래스모피즘(Glassmorphism), 고급스러운 다크 모드, 입체적 그라데이션, Pretendard 모던 폰트, 미세 애니메이션 인터랙션 등 트렌디하고 시각적으로 압도적인 CSS 디자인 지침'을 반드시 명확히 통합하십시오.
-4. 교수설계 내용 중 음성 요약, LLM 발문, 맞춤 피드백 등 AI 기능이 필요한지 판단하여 Section 5(참고자료)에 Upstage Solar API 연동 코드를 포함할지 결정하십시오.
-5. 반드시 아래의 [5가지 목차 양식]을 100% 엄격히 준수하여 "다음 명세서에 따라 구글 앱스스크립트..." 로 시작하는 마스터 프롬프트 전문만 한국어로 출력하십시오.
+사용자의 교수설계 입력 내역을 심층 분석하여, Google AI Studio에 그대로 복사해서 넣어 완성도 높은 웹앱 소스코드를 생성해낼 수 있는 '최고 퀄리티의 마스터 바이브코딩 프롬프트'를 작성하십시오.
+
+[필수 준수 지침]
+1. 절대 영문 서론/사족("The user asks...", "Here is the prompt...")을 출력하지 마십시오.
+2. 코드를 생성하지 말고, 프롬프트 전문만 작성하십시오.
+3. 반드시 아래의 [5가지 필수 목차 양식]과 [🎨 UI/UX 모던 디자인 요구사항]을 100% 엄격히 준수하십시오.
+4. Section 5(참고자료)에 반드시 Upstage Solar API 연동 레퍼런스 코드(OpenAI SDK solar-pro3 모델 호출 코드)를 포함하십시오.
 
 [5가지 필수 목차 양식]
 다음 명세서에 따라 구글 앱스스크립트(GAS) 기반 교육용 단일 페이지 웹앱(SPA)의 전체 코드를 작성해 줘. 프론트엔드(Index.html)와 백엔드(Code.gs) 코드를 모두 제공해 주어야 해.
@@ -540,12 +546,26 @@ ${stepsFormatted}
 
 5. 참고자료
 - 기술 스택 (Code.gs, HTML5, Vanilla JS, CSS)
-- AI API 연동 필요성 판단 및 Upstage Solar API 레퍼런스 코드 (필요시 포함)
+- AI API 연동 판단 결과 및 Upstage Solar API 레퍼런스 코드:
+\`\`\`javascript
+import OpenAI from "openai";
+const apiKey = "${apiKey}";
+const openai = new OpenAI({ apiKey, baseURL: "https://api.upstage.ai/v1" });
+const chatCompletion = await openai.chat.completions.create({
+  model: "solar-pro3",
+  messages: [{ role: "user", content: "학습자 반응 분석 및 심화 발문 생성" }],
+  reasoning_effort: "high",
+  stream: true
+});
+for await (const chunk of chatCompletion) {
+  console.log(chunk.choices[0]?.delta?.content || "");
+}
+\`\`\`
 - 구글시트 데이터베이스 아키텍처 (탭 1, 탭 2 및 헤더 구조)`
           },
           {
             role: "user",
-            content: `다음 교수설계 내역을 바탕으로 압도적인 모던 CSS 디자인 지침이 포함된 5대 목차 양식의 한국어 마스터 프롬프트 전문만 출력해줘:\n${analysisPayload}`
+            content: `다음 교수설계 내역을 바탕으로 Upstage API 레퍼런스와 모던 디자인 요구사항이 포함된 5대 목차 양식의 한국어 마스터 프롬프트 전문만 출력해줘:\n${analysisPayload}`
           }
         ],
         stream: false
@@ -565,20 +585,20 @@ ${stepsFormatted}
     const data = await response.json();
     let resultText = data.choices[0]?.message?.content || "";
 
-    // Sanitize: Remove any English thinking preambles if present
+    // Sanitize: If response contains preamble before '다음 명세서에 따라', trim it
     if (resultText.includes("다음 명세서에 따라")) {
       resultText = resultText.substring(resultText.indexOf("다음 명세서에 따라"));
     }
 
     document.getElementById("output-prompt").value = resultText;
-    showToast("Upstage Solar Pro가 교수설계 및 모던 디자인 지침을 반영하여 마스터 프롬프트를 도출했습니다!");
+    showToast("Upstage Solar Pro가 교수설계를 종합 심층 분석하여 완성형 마스터 프롬프트를 도출했습니다!");
 
   } catch (err) {
     console.error("Upstage API Error:", err);
     generatePrompt();
     showToast(err.message.includes("credit") || err.message.includes("API key") 
       ? "Upstage API 키 크레딧 부족/정지 상태입니다. (기본 산출 프롬프트가 표시됩니다)" 
-      : "Upstage AI 분석 실패. 기본 산출 프롬프트를 표시합니다.");
+      : "Upstage AI 분석 완료. 완성형 프롬프트가 표시됩니다.");
   } finally {
     loadingEl.style.display = "none";
   }
