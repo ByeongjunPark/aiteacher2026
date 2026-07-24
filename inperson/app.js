@@ -412,8 +412,7 @@ function updateLiveSummary() {
 
   stdEl.innerText = appState.standards || "미입력";
   stdEl.className = appState.standards ? "" : "empty-txt";
-
-  envEl.innerText = appState.environment || "미입력";
+envEl.innerText = appState.environment || "미입력";
   envEl.className = appState.environment ? "" : "empty-txt";
 
   // Step 2
@@ -559,19 +558,53 @@ function initEventListeners() {
 function generatePrompt() {
   saveToLocalStorage();
 
-  // Format Features Section
+  // Format Features Section (3단계)
   const featuresFormatted = appState.features.map((ft, i) => {
-    return `[기능 ${i+1}] ${ft.title}
-- 세부 구현 명세: ${ft.desc}`;
-  }).join("\n\n");
+    return `- [기능 ${i+1}] ${ft.title}: ${ft.desc}`;
+  }).join("\n");
 
-  // Format Steps Section with Feature Linking
+  // Format Steps Section with Feature Linking (4단계)
   const stepsFormatted = appState.steps.map((st, i) => {
     const linkedFeat = appState.features.find(f => f.id === st.featureId);
-    const featStr = linkedFeat ? ` [연계 핵심기능: ${linkedFeat.title}]` : '';
-    return `[Step ${i+1}] 활동 형태: ${st.type || '전체'} | 가네 사태: ${st.gagne}${featStr}
-- 화면 및 학습 경험: ${st.experience}`;
-  }).join("\n\n");
+    const featStr = linkedFeat ? ` | [연계 기능: ${linkedFeat.title}]` : '';
+    return `- [Step ${i+1}] ${st.type || '전체'}활동 | ${st.gagne}${featStr}\n  : ${st.experience}`;
+  }).join("\n");
+
+  // Check if AI API is mentioned/needed in features or steps
+  const allText = JSON.stringify(appState);
+  const needsAiApi = /AI|인공지능|Upstage|Solar|녹취|발문|요약|LLM/i.test(allText);
+
+  let apiReferenceBlock = "";
+  if (needsAiApi) {
+    apiReferenceBlock = `- AI API 연동 가이드 및 레퍼런스 코드 (Upstage Solar-Pro3 API Integration):
+  * Upstage API Key: "${appState.apiKey || 'up_jskRfswj0ZmfhlfDvjyVBSY81iuh2'}"
+  * Base URL: "https://api.upstage.ai/v1"
+  * Target Model: "solar-pro3"
+  * 백엔드(Code.gs) 또는 프론트엔드 API 호출 방식 레퍼런스:
+\`\`\`javascript
+// Upstage Chat Completions API Call Reference
+const apiKey = "${appState.apiKey || 'up_jskRfswj0ZmfhlfDvjyVBSY81iuh2'}";
+const response = await fetch("https://api.upstage.ai/v1/chat/completions", {
+  method: "POST",
+  headers: {
+    "Authorization": \`Bearer \${apiKey}\`,
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    model: "solar-pro3",
+    messages: [
+      { role: "system", content: "당신은 교과 수업을 지원하는 수석 AI 퍼실리테이터입니다." },
+      { role: "user", content: "학습자 반응 분석 및 심화 발문/피드백 생성" }
+    ],
+    stream: false
+  })
+});
+const data = await response.json();
+console.log(data.choices[0].message.content);
+\`\`\``;
+  } else {
+    apiReferenceBlock = `- AI API 연동 여부: 별도 외부 AI API 연동 없이 순수 웹 프론트엔드 및 Apps Script 백엔드로 구성된 앱입니다.`;
+  }
 
   const promptTemplate = `다음 명세서에 따라 구글 앱스스크립트(GAS) 기반 교육용 단일 페이지 웹앱(SPA)의 전체 코드를 작성해 줘. 프론트엔드(Index.html)와 백엔드(Code.gs) 코드를 모두 제공해 주어야 해.
 
@@ -589,38 +622,12 @@ function generatePrompt() {
 3. 핵심 기능 정의
 ${featuresFormatted}
 
-4. 화면의 흐름 (가네의 9가지 수업 사태 & 핵심 기능 연계 시나리오)
+4. 화면의 흐름 (가네의 9가지 수업 사태 & 핵심 기능 연계)
 ${stepsFormatted}
 
 5. 참고자료
-- 기술 스택: 구글 앱스스크립트(Code.gs), HTML5, Vanilla JavaScript, CSS (Vanilla CSS 또는 Tailwind CDN)
-- AI API 연동 가이드 및 레퍼런스 코드 (Upstage Solar-Pro3 Integration):
-  * Upstage API Key: "${appState.apiKey || 'up_jskRfswj0ZmfhlfDvjyVBSY81iuh2'}"
-  * Base URL: "https://api.upstage.ai/v1"
-  * Target Model: "solar-pro3"
-  * 백엔드(Code.gs) 또는 프론트엔드 API 호출 방식 예시:
-\`\`\`javascript
-// Upstage Chat Completions API Call Reference
-const apiKey = "${appState.apiKey || 'up_jskRfswj0ZmfhlfDvjyVBSY81iuh2'}";
-const response = await fetch("https://api.upstage.ai/v1/chat/completions", {
-  method: "POST",
-  headers: {
-    "Authorization": \`Bearer \${apiKey}\`,
-    "Content-Type": "application/json"
-  },
-  body: JSON.stringify({
-    model: "solar-pro3",
-    messages: [
-      { role: "system", content: "당신은 사회과 논쟁 토론 및 경제 학습을 지원하는 AI 퍼실리테이터입니다." },
-      { role: "user", content: "학습자 반응 분석 및 심화 탐구 질문/피드백 생성" }
-    ],
-    stream: false
-  })
-});
-const data = await response.json();
-console.log(data.choices[0].message.content);
-\`\`\`
-
+- 기술 스택: 구글 앱스스크립트(Code.gs), HTML5, Vanilla JavaScript, CSS
+${apiReferenceBlock}
 - 구글시트 데이터베이스 아키텍처:
   * 탭 1 명칭: [학습자_기록]
     - 헤더 명칭: 타임스탬프, 학습자ID, 모둠번호, 성명, 선택입장, 최종성찰문, 접속디바이스
@@ -629,7 +636,7 @@ console.log(data.choices[0].message.content);
 `;
 
   document.getElementById("output-prompt").value = promptTemplate;
-  showToast("사회과 교수설계 기반 최종 프롬프트가 산출되었습니다!");
+  showToast("지정된 5대 목차 양식의 프롬프트가 산출되었습니다!");
 }
 
 async function generateWithUpstage() {
