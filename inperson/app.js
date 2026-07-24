@@ -45,7 +45,7 @@ const DEFAULT_STATE = {
       experience: "성공 시 폭죽 애니메이션/뱃지, 실패 시 힌트 말풍선 제공"
     }
   ],
-  apiKey: ""
+  apiKey: "up_jskRfswj0ZmfhlfDvjyVBSY81iuh2"
 };
 
 let appState = JSON.parse(JSON.stringify(DEFAULT_STATE));
