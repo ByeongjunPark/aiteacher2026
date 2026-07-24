@@ -18,29 +18,35 @@ const GAGNE_EVENTS = [
 
 const DEFAULT_STATE = {
   currentStep: 1,
+  topic: "5단원 재미있는 코딩 (2차시)",
+  inquiry: "조건문이란 무엇이며 실생활에서 어떻게 쓰일까?",
   target: "초등학교 5학년 학생 (20명)",
-  standards: "[6실05-02] 문제 해결 과정에서 조건에 따른 실생활 분기 구조를 이해하고 블록 코딩으로 구현한다.",
-  motivation: "퀴즈 기반 보상 시스템, 실황 애니메이션 시각 피드백",
-  environment: "1인 1크롬북, 교실 무선 네트워크, 40분 1차시",
-  goal: "학습자가 주어진 조건(온도/습도)을 직접 조작해보며 실시간 결과 변화를 관찰하고, 조건문 분기 원리를 귀납적으로 탐구하도록 함",
+  standards: "[6실05-02] 문제 해결 과정에서 조건에 따른 분기 구조를 이해한다.",
+  intent: "학생들이 분기 구조를 어려워하여, 시뮬레이션을 통해 직관적으로 깨닫게 함",
+  environment: "1인 1크롬북, 교실 무선 네트워크 접속",
+  goal: "조건값을 직접 조작하며 결과 변화를 관찰하고 피드백을 얻는 시뮬레이터 역할",
   steps: [
     {
       id: "step-1",
+      type: "전체",
       gagne: "1. 주의 집중시키기 (Gain attention)",
       experience: "스마트홈 온도 센서 시뮬레이션으로 흥미를 자극하고 실생활 문제 제시"
     },
     {
       id: "step-2",
+      type: "전체",
       gagne: "5. 학습 안내 제시하기 (Provide learning guidance)",
       experience: "슬라이더 조절 시 에어컨이 켜지는 '만약 ~라면' 조건문 시각 카드로 안내"
     },
     {
       id: "step-3",
+      type: "개별",
       gagne: "6. 수행을 유도하기 (Elicit performance)",
       experience: "3가지 미션(자동문, 에어컨, 가로등) 상황의 조건을 직접 세팅해보는 미션 수행"
     },
     {
       id: "step-4",
+      type: "개별",
       gagne: "7. 피드백 제공하기 (Provide feedback)",
       experience: "성공 시 폭죽 애니메이션/뱃지, 실패 시 힌트 말풍선 제공"
     }
@@ -68,18 +74,22 @@ function loadFromLocalStorage() {
     }
   }
 
+  document.getElementById("input-topic").value = appState.topic || "";
+  document.getElementById("input-inquiry").value = appState.inquiry || "";
   document.getElementById("input-target").value = appState.target || "";
   document.getElementById("input-standards").value = appState.standards || "";
-  document.getElementById("input-motivation").value = appState.motivation || "";
+  document.getElementById("input-intent").value = appState.intent || "";
   document.getElementById("input-environment").value = appState.environment || "";
   document.getElementById("input-goal").value = appState.goal || "";
   document.getElementById("input-api-key").value = appState.apiKey || "";
 }
 
 function saveToLocalStorage() {
+  appState.topic = document.getElementById("input-topic").value;
+  appState.inquiry = document.getElementById("input-inquiry").value;
   appState.target = document.getElementById("input-target").value;
   appState.standards = document.getElementById("input-standards").value;
-  appState.motivation = document.getElementById("input-motivation").value;
+  appState.intent = document.getElementById("input-intent").value;
   appState.environment = document.getElementById("input-environment").value;
   appState.goal = document.getElementById("input-goal").value;
   appState.apiKey = document.getElementById("input-api-key").value;
@@ -127,10 +137,17 @@ function switchWizardStep(stepNum) {
 // Update Live Summary Board on Right Panel
 function updateLiveSummary() {
   // Step 1
+  const topicEl = document.getElementById("summary-topic");
+  const inqEl = document.getElementById("summary-inquiry");
   const targetEl = document.getElementById("summary-target");
   const stdEl = document.getElementById("summary-standards");
-  const motEl = document.getElementById("summary-motivation");
   const envEl = document.getElementById("summary-environment");
+
+  topicEl.innerText = appState.topic || "미입력";
+  topicEl.className = appState.topic ? "" : "empty-txt";
+  
+  inqEl.innerText = appState.inquiry || "미입력";
+  inqEl.className = appState.inquiry ? "" : "empty-txt";
 
   targetEl.innerText = appState.target || "미입력";
   targetEl.className = appState.target ? "" : "empty-txt";
@@ -138,14 +155,15 @@ function updateLiveSummary() {
   stdEl.innerText = appState.standards || "미입력";
   stdEl.className = appState.standards ? "" : "empty-txt";
 
-  motEl.innerText = appState.motivation || "미입력";
-  motEl.className = appState.motivation ? "" : "empty-txt";
-
   envEl.innerText = appState.environment || "미입력";
   envEl.className = appState.environment ? "" : "empty-txt";
 
   // Step 2
+  const intentEl = document.getElementById("summary-intent");
   const goalEl = document.getElementById("summary-goal");
+  
+  intentEl.innerText = appState.intent || "미입력";
+  intentEl.className = appState.intent ? "" : "empty-txt";
   goalEl.innerText = appState.goal || "미입력";
   goalEl.className = appState.goal ? "" : "empty-txt";
 
@@ -161,7 +179,7 @@ function updateLiveSummary() {
       const node = document.createElement("div");
       node.className = "tree-step-node";
       node.innerHTML = `
-        <div class="tree-step-title">단계 ${idx + 1}: ${st.gagne}</div>
+        <div class="tree-step-title">단계 ${idx + 1}: ${st.gagne} <span class="badge-tag" style="margin-left: 5px; font-size: 0.7em;">${st.type || '전체'}</span></div>
         <div>${st.experience || '(경험 내용 미작성)'}</div>
       `;
       treeContainer.appendChild(node);
@@ -194,6 +212,7 @@ function initEventListeners() {
   document.getElementById("btn-add-step").addEventListener("click", () => {
     const newStep = {
       id: `step-${Date.now()}`,
+      type: "전체",
       gagne: GAGNE_EVENTS[0],
       experience: ""
     };
@@ -254,6 +273,10 @@ function renderSteps() {
       `<option value="${ev}" ${ev === step.gagne ? 'selected' : ''}>${ev}</option>`
     ).join('');
 
+    const typeOptions = ["전체", "모둠", "개별"].map(t => 
+      `<option value="${t}" ${t === (step.type || '전체') ? 'selected' : ''}>${t}</option>`
+    ).join('');
+
     stepEl.innerHTML = `
       <div class="step-item-header">
         <div class="drag-handle">
@@ -264,18 +287,32 @@ function renderSteps() {
         <button class="btn-delete-step" data-index="${index}" title="삭제"><i class="fa-solid fa-trash-can"></i></button>
       </div>
 
-      <div class="form-group">
-        <label><i class="fa-solid fa-layer-group"></i> 가네 수업 사태 선택</label>
-        <select class="gagne-select" data-index="${index}">
-          ${optionsHtml}
-        </select>
+      <div class="form-group-row" style="display: grid; grid-template-columns: 1fr 2fr; gap: 10px; align-items: start;">
+        <div class="form-group" style="margin-bottom: 0;">
+          <label><i class="fa-solid fa-users"></i> 활동 형태</label>
+          <select class="type-select" data-index="${index}">
+            ${typeOptions}
+          </select>
+        </div>
+        <div class="form-group" style="margin-bottom: 0;">
+          <label><i class="fa-solid fa-layer-group"></i> 가네 수업 사태 선택</label>
+          <select class="gagne-select" data-index="${index}">
+            ${optionsHtml}
+          </select>
+        </div>
       </div>
 
-      <div class="form-group">
+      <div class="form-group" style="margin-top: 15px;">
         <label><i class="fa-solid fa-pen-nib"></i> 유도 학습 경험</label>
         <textarea rows="2" class="experience-input" data-index="${index}" placeholder="이 단계에서 학습자가 경험할 화면, 인터랙션을 쓰세요.">${step.experience || ''}</textarea>
       </div>
     `;
+
+    stepEl.querySelector(".type-select").addEventListener("change", (e) => {
+      appState.steps[index].type = e.target.value;
+      saveToLocalStorage();
+      renderSteps();
+    });
 
     stepEl.querySelector(".gagne-select").addEventListener("change", (e) => {
       appState.steps[index].gagne = e.target.value;
@@ -332,20 +369,22 @@ function generatePrompt() {
   saveToLocalStorage();
 
   const stepsFormatted = appState.steps.map((st, i) => {
-    return `[Step ${i+1}] ${st.gagne}
+    return `[Step ${i+1}] 활동 형태: ${st.type || '전체'} | ${st.gagne}
 - 화면 및 학습 경험: ${st.experience}`;
   }).join("\n\n");
 
   const promptTemplate = `다음 명세서에 따라 구글 앱스스크립트(GAS) 기반 교육용 단일 페이지 웹앱(SPA)의 전체 코드를 작성해 줘. 프론트엔드(Index.html)와 백엔드(Code.gs) 코드를 모두 제공해 주어야 해.
 
 1. 배경 및 목표
+- 수업 주제(단원): ${appState.topic}
+- 탐구 질문: ${appState.inquiry}
 - 성취기준 및 학습 목표: ${appState.standards}
 - 학습 대상: ${appState.target}
-- 학습 환경: ${appState.environment}
+- 디바이스 및 유의사항(학습 환경): ${appState.environment}
 
 2. 사용자 분석
-- 학습자 동기 및 교사 도입 의도: ${appState.motivation}
-- 웹앱 최종 학습경험 목표: ${appState.goal}
+- 수업 의도 및 학생 분석: ${appState.intent}
+- 디지털 도구로서 웹앱의 역할 및 핵심 기능: ${appState.goal}
 
 3. 핵심 기능 정의
 - 교수설계가 반영된 인터랙티브 UI 및 즉각적 피드백 시스템 제공

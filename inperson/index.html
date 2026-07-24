@@ -66,29 +66,34 @@
         <div class="step-input-view active" id="input-view-1">
           <div class="panel-header">
             <span class="step-badge-pill">STEP 01</span>
-            <h2>1단계: 학습대상, 성취기준, 동기, 학습환경</h2>
-            <p>교수설계의 대상 및 구체적인 수업 맥락 정보를 입력하세요.</p>
+            <h2>1단계: 수업 배경 및 기본 정보</h2>
+            <p>지도안의 학년, 단원, 대상 및 수업 환경을 입력하세요.</p>
           </div>
 
           <div class="form-body">
             <div class="form-group">
-              <label for="input-target"><i class="fa-solid fa-user-graduate"></i> (가) 학습 대상</label>
+              <label for="input-topic"><i class="fa-solid fa-book"></i> 수업 주제(단원)</label>
+              <input type="text" id="input-topic" placeholder="예: 5단원 재미있는 코딩 (2차시)">
+            </div>
+
+            <div class="form-group">
+              <label for="input-inquiry"><i class="fa-solid fa-circle-question"></i> 탐구 질문</label>
+              <input type="text" id="input-inquiry" placeholder="예: 조건문이란 무엇이며 실생활에서 어떻게 쓰일까?">
+            </div>
+
+            <div class="form-group">
+              <label for="input-target"><i class="fa-solid fa-user-graduate"></i> 학습 대상</label>
               <input type="text" id="input-target" placeholder="예: 초등학교 5학년 학생 (20명)">
             </div>
 
             <div class="form-group">
-              <label for="input-standards"><i class="fa-solid fa-bullseye"></i> (나) 성취기준 / 학습 목표</label>
-              <textarea id="input-standards" rows="3" placeholder="예: [6실05-02] 문제 해결 과정에서 조건에 따른 분기 구조를 이해하고 블록 코딩으로 구현한다."></textarea>
+              <label for="input-standards"><i class="fa-solid fa-bullseye"></i> 성취기준 / 학습 목표</label>
+              <textarea id="input-standards" rows="2" placeholder="예: [6실05-02] 조건에 따른 분기 구조를 이해한다."></textarea>
             </div>
 
             <div class="form-group">
-              <label for="input-motivation"><i class="fa-solid fa-fire"></i> (다) 학습자 동기 요소</label>
-              <input type="text" id="input-motivation" placeholder="예: 퀴즈 기반 보상 시스템, 실황 애니메이션 시각 피드백">
-            </div>
-
-            <div class="form-group">
-              <label for="input-environment"><i class="fa-solid fa-network-wired"></i> (라) 학습 환경</label>
-              <input type="text" id="input-environment" placeholder="예: 1인 1크롬북, 교실 무선 네트워크, 40분 1차시">
+              <label for="input-environment"><i class="fa-solid fa-laptop-code"></i> 디바이스 및 유의사항 (학습 환경)</label>
+              <input type="text" id="input-environment" placeholder="예: 1인 1크롬북, 교실 무선 네트워크">
             </div>
           </div>
 
@@ -102,14 +107,19 @@
         <div class="step-input-view" id="input-view-2">
           <div class="panel-header">
             <span class="step-badge-pill">STEP 02</span>
-            <h2>2단계: 웹앱의 학습경험 목표 설정</h2>
-            <p>학습자가 본 웹앱과 상호작용하며 도달할 최종 경험 목표를 입력하세요.</p>
+            <h2>2단계: 앱 도입 의도 및 핵심 기능 목표</h2>
+            <p>수업 의도 및 본 웹앱이 수업에서 수행할 핵심 역할을 입력하세요.</p>
           </div>
 
           <div class="form-body">
             <div class="form-group">
-              <label for="input-goal" class="gold-label"><i class="fa-solid fa-trophy"></i> 웹앱 학습경험 목표</label>
-              <textarea id="input-goal" rows="6" placeholder="예: 학습자가 시뮬레이션을 통해 직접 조건(온도/습도)을 조작해보며 실시간 결과 변화를 관찰하고, 조건문의 분기 원리를 귀납적으로 탐구하도록 함"></textarea>
+              <label for="input-intent"><i class="fa-solid fa-lightbulb"></i> 수업 의도 및 학생 분석</label>
+              <textarea id="input-intent" rows="3" placeholder="예: 학생들이 분기 구조를 어려워하여, 시뮬레이션을 통해 직관적으로 깨닫게 함"></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="input-goal" class="gold-label"><i class="fa-solid fa-rocket"></i> 디지털 도구로서 웹앱의 역할 및 핵심 기능</label>
+              <textarea id="input-goal" rows="4" placeholder="예: 조건값을 직접 조작하며 결과 변화를 관찰하고 피드백을 얻는 시뮬레이터 역할"></textarea>
             </div>
           </div>
 
@@ -211,13 +221,14 @@
           <div class="accum-card" id="accum-card-1">
             <div class="accum-card-title">
               <span class="accum-num">1</span>
-              <span>학습자 & 수업 환경</span>
+              <span>수업 배경 및 기본 정보</span>
             </div>
             <div class="accum-card-body">
+              <div class="summary-item"><strong>수업 주제:</strong> <span id="summary-topic" class="empty-txt">미입력</span></div>
+              <div class="summary-item"><strong>탐구 질문:</strong> <span id="summary-inquiry" class="empty-txt">미입력</span></div>
               <div class="summary-item"><strong>학습 대상:</strong> <span id="summary-target" class="empty-txt">미입력</span></div>
               <div class="summary-item"><strong>성취기준:</strong> <span id="summary-standards" class="empty-txt">미입력</span></div>
-              <div class="summary-item"><strong>동기 요소:</strong> <span id="summary-motivation" class="empty-txt">미입력</span></div>
-              <div class="summary-item"><strong>학습 환경:</strong> <span id="summary-environment" class="empty-txt">미입력</span></div>
+              <div class="summary-item"><strong>디바이스:</strong> <span id="summary-environment" class="empty-txt">미입력</span></div>
             </div>
           </div>
 
@@ -225,10 +236,11 @@
           <div class="accum-card" id="accum-card-2">
             <div class="accum-card-title">
               <span class="accum-num">2</span>
-              <span>웹앱 학습경험 목표</span>
+              <span>앱 도입 의도 및 핵심 목표</span>
             </div>
             <div class="accum-card-body">
-              <p id="summary-goal" class="empty-txt">미입력</p>
+              <div class="summary-item"><strong>의도/분석:</strong> <span id="summary-intent" class="empty-txt">미입력</span></div>
+              <div class="summary-item"><strong>웹앱 역할:</strong> <span id="summary-goal" class="empty-txt">미입력</span></div>
             </div>
           </div>
 
