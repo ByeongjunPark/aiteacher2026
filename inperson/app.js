@@ -205,7 +205,7 @@ function switchWizardStep(stepNum) {
   if (targetCard) targetCard.classList.add("highlight");
 
   if (appState.currentStep === 5 && !document.getElementById("output-prompt").value) {
-    generatePrompt();
+    generateWithUpstage();
   }
 }
 
@@ -635,8 +635,33 @@ async function generateWithUpstage() {
   const loadingEl = document.getElementById("prompt-loading");
   loadingEl.style.display = "flex";
 
-  generatePrompt();
-  const basePrompt = document.getElementById("output-prompt").value;
+  // Build 1-4 step summary payload for Upstage AI Analysis
+  const featuresFormatted = appState.features.map((ft, i) => {
+    return `[기능 ${i+1}] 명칭: ${ft.title}\n  - 설명: ${ft.desc}`;
+  }).join("\n");
+
+  const stepsFormatted = appState.steps.map((st, i) => {
+    const linkedFeat = appState.features.find(f => f.id === st.featureId);
+    const featStr = linkedFeat ? ` [연계기능: ${linkedFeat.title}]` : ' [연계기능 없음/단순기능]';
+    return `[Step ${i+1}] 활동형태: ${st.type || '전체'} | 가네사태: ${st.gagne}${featStr}\n  - 학습자 화면 및 경험: ${st.experience}`;
+  }).join("\n");
+
+  const analysisPayload = `
+[교수설계 명세서 (1~4단계 작성 내용)]
+1. 수업 주제(교과 및 단원): ${appState.topic}
+2. 탐구 질문: ${appState.inquiry}
+3. 성취기준: ${appState.standards}
+4. 학습 대상: ${appState.target}
+5. 디바이스 및 유의사항(학습 환경): ${appState.environment}
+6. 수업 의도 및 학생 분석: ${appState.intent}
+7. 디지털 도구로서 웹앱의 역할 및 핵심 목표: ${appState.goal}
+
+[3단계: 핵심 기능 목록]
+${featuresFormatted}
+
+[4단계: 학습자 관점 웹앱 단계 시나리오]
+${stepsFormatted}
+`;
 
   try {
     const response = await fetch("https://api.upstage.ai/v1/chat/completions", {
@@ -650,11 +675,41 @@ async function generateWithUpstage() {
         messages: [
           {
             role: "system",
-            content: "당신은 가네(Gagné)의 수업 사태 기반 교수설계와 구글 앱스스크립트(GAS) 바이브코딩에 특화된 수석 AI 교육공학자입니다. 제공된 프롬프트를 보완하여 교사들이 Google AI Studio에서 바로 사용할 수 있는 압도적 품질의 마스터 바이브코딩 프롬프트로 다듬어주세요."
+            content: `당신은 가네(Gagné) 수업 사태 기반 교수설계와 구글 앱스스크립트(GAS) 바이브코딩에 특화된 수석 AI 교육공학자입니다.
+
+사용자가 작성한 1~4단계 교수설계 내역을 종합적으로 심층 분석하여, 
+1) 본 웹앱의 기능 중 외부 AI API (Upstage Solar LLM, 음성 요약, 심화 발문 등) 연동이 꼭 필요한지 여부를 판단하세요.
+2) 만약 AI API 연동이 필요하다면 Section 5(참고자료)에 Upstage Solar API 연동 코드 레퍼런스를 포함하고, 필요 없다면 일반 순수 HTML/GAS 아키텍처로 구성하세요.
+3) 반드시 사용자가 요구한 아래 5가지 목차 양식을 100% 엄격히 준수하여 Google AI Studio에 입력할 마스터 바이브코딩 프롬프트 전문만 출력해 주십시오.
+
+[필수 지정 목차 양식]
+다음 명세서에 따라 구글 앱스스크립트(GAS) 기반 교육용 단일 페이지 웹앱(SPA)의 전체 코드를 작성해 줘. 프론트엔드(Index.html)와 백엔드(Code.gs) 코드를 모두 제공해 주어야 해.
+
+1. 배경 및 목표
+- 수업 주제(교과 및 단원): ...
+- 탐구 질문: ...
+- 성취기준 및 학습 목표: ...
+- 학습 대상: ...
+- 디바이스 및 유의사항(학습 환경): ...
+
+2. 사용자 분석
+- 수업 의도 및 학생 분석: ...
+- 디지털 도구로서 웹앱의 역할 및 핵심 목표: ...
+
+3. 핵심 기능 정의
+(3단계 기능 목록 분석 반영)
+
+4. 화면의 흐름 (가네의 9가지 수업 사태 & 핵심 기능 연계)
+(4단계 시나리오 분석 반영)
+
+5. 참고자료
+- 기술 스택 (Code.gs, HTML5, Vanilla JS, CSS)
+- AI API 연동 필요성 판단 결과 및 Upstage Solar API 레퍼런스 코드 (필요시 포함)
+- 구글시트 데이터베이스 아키텍처 (탭 및 헤더 구조)`
           },
           {
             role: "user",
-            content: `다음 초안 프롬프트를 교육공학적 깊이와 구글 앱스스크립트(GAS) 아키텍처 관점에서 더 전문적이고 명확하게 다듬어 보완된 프롬프트 전문만 출력해줘:\n\n${basePrompt}`
+            content: `다음 교수설계 내역을 분석하여 마스터 프롬프트를 작성해줘:\n${analysisPayload}`
           }
         ],
         stream: false
@@ -665,11 +720,12 @@ async function generateWithUpstage() {
 
     const data = await response.json();
     document.getElementById("output-prompt").value = data.choices[0].message.content;
-    showToast("Upstage Solar Pro가 프롬프트를 성공적으로 다듬었습니다!");
+    showToast("Upstage Solar Pro가 교수설계를 종합 분석하여 맞춤형 프롬프트를 도출했습니다!");
 
   } catch (err) {
     console.error("Upstage API Error:", err);
-    showToast("Upstage API 호출 실패. 기본 생성 프롬프트를 유지합니다.");
+    generatePrompt(); // Fallback to local prompt generator
+    showToast("Upstage AI 분석 실패. 기본 생성 프롬프트를 표시합니다.");
   } finally {
     loadingEl.style.display = "none";
   }
