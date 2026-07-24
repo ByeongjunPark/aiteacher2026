@@ -4,7 +4,9 @@
  */
 
 const GAGNE_EVENTS = [
-  "단순 기능 구현 (해당 없음)",
+  "0. [앱 초기 설정] 학번/이름 로그인 및 사용자 등록",
+  "0. [앱 초기 설정] 모둠 및 찬반 입장 선택 화면",
+  "0. 단순 기능 구현 (Gagné 해당 없음)",
   "1. 주의 집중시키기 (Gain attention)",
   "2. 학습 목표 알리기 (Inform learners of objectives)",
   "3. 선행학습 상기시키기 (Stimulate recall of prior learning)",
@@ -33,6 +35,8 @@ const LESSON_PRESETS = {
       { id: "feat-4", title: "구글 시트 연동 토론 성찰 리포트 & 학급 공유 보드", desc: "모둠별 토론 기록, AI 심화 발문 응답, 성찰문을 구글 시트 DB에 저장하고 공유하는 백엔드 연동 기능" }
     ],
     steps: [
+      { id: "step-0", type: "개별", gagne: "0. [앱 초기 설정] 학번/이름 로그인 및 사용자 등록", featureId: "", experience: "학번, 이름 입력 후 개인별 접속 세션 생성 및 사용자 등록" },
+      { id: "step-0-2", type: "모둠", gagne: "0. [앱 초기 설정] 모둠 및 찬반 입장 선택 화면", featureId: "", experience: "모둠 번호 선택 및 시장 실패에 대한 정부 개입 찬성(규제/보조금) vs 반대(자율/정부실패) 입장 선택" },
       { id: "step-1", type: "전체", gagne: "1. 주의 집중시키기 (Gain attention)", featureId: "feat-1", experience: "환경오염(외부효과) 사례 카드 제시 후 '정부가 어디까지 개입해야 하는가?' 딜레마 문제 상기" },
       { id: "step-2", type: "모둠", gagne: "6. 수행을 유도하기 (Elicit performance)", featureId: "feat-1", experience: "모둠별 찬반 토론 수행 시 음성 녹취 기능으로 발언을 기록하고 입장별 주요 근거 자동 요약 카드 확인" },
       { id: "step-3", type: "모둠", gagne: "7. 피드백 제공하기 (Provide feedback)", featureId: "feat-2", experience: "요약된 논거를 바탕으로 Upstage Solar AI가 생성한 '정부 실패의 부작용은 어떻게 극복할 것인가?' 등의 심화 발문 피드백에 대해 모둠 재토론 진행" },
