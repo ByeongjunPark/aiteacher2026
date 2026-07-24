@@ -13,18 +13,18 @@
 </head>
 <body>
 
-  <!-- Glowing Background Orbs -->
+  <!-- Background Animated Orbs -->
   <div class="bg-orb orb-1"></div>
   <div class="bg-orb orb-2"></div>
   <div class="bg-orb orb-3"></div>
 
   <div class="app-container">
-    <!-- Header -->
+    <!-- Top Header -->
     <header class="app-header">
       <div class="logo-area">
         <span class="badge-tag"><i class="fa-solid fa-graduation-cap"></i> AI Teacher 2026</span>
         <h1>체계적 교수설계 기반 <span>바이브코딩 프롬프트 제작소</span></h1>
-        <p>코드를 직접 작성하는 것이 아닌, <strong>'고품질 교육용 코드를 생성하는 최적의 프롬프트'</strong>를 설계합니다.</p>
+        <p>단계별(Step-by-Step) 가이드를 따라 <strong>'고품질 교육용 앱을 만드는 마스터 프롬프트'</strong>를 빌드하세요.</p>
       </div>
 
       <div class="header-actions">
@@ -32,6 +32,31 @@
         <button id="btn-reset" class="glass-btn danger-subtle"><i class="fa-solid fa-rotate-left"></i> 초기화</button>
       </div>
     </header>
+
+    <!-- Multi-step Progress Wizard Bar -->
+    <nav class="wizard-progress-bar glass-panel">
+      <div class="progress-track">
+        <div class="progress-fill" id="progress-fill"></div>
+      </div>
+      <div class="wizard-steps-indicator">
+        <div class="step-node active" data-step-target="1">
+          <div class="node-icon">1</div>
+          <span class="node-label">학습자/환경 분석</span>
+        </div>
+        <div class="step-node" data-step-target="2">
+          <div class="node-icon">2</div>
+          <span class="node-label">학습경험 목표</span>
+        </div>
+        <div class="step-node" data-step-target="3">
+          <div class="node-icon">3</div>
+          <span class="node-label">단계별 시나리오</span>
+        </div>
+        <div class="step-node" data-step-target="4">
+          <div class="node-icon">4</div>
+          <span class="node-label">프롬프트 도출</span>
+        </div>
+      </div>
+    </nav>
 
     <!-- Gagné Model Guide Visual Banner -->
     <section class="gagne-guide-card glass-panel">
@@ -61,59 +86,80 @@
       </div>
     </section>
 
-    <!-- Main Wizard Content Grid -->
-    <main class="wizard-grid">
+    <!-- Main Wizard Step Views -->
+    <main class="wizard-views-container">
 
-      <!-- STEP 1 & 2 Card -->
-      <section class="wizard-card glass-panel step-1-2">
+      <!-- STEP 1 View -->
+      <section class="wizard-card glass-panel wizard-step-view active" id="view-step-1">
         <div class="card-header">
-          <div class="step-num">01 & 02</div>
+          <div class="step-num">01</div>
           <div>
-            <h2>학습자 분석 & 학습경험 목표</h2>
-            <p>수업 환경, 학습자 특성 및 웹앱의 도달 목표를 설정합니다.</p>
+            <h2>1단계: 학습대상, 성취기준, 동기, 학습환경 설정</h2>
+            <p>교수설계의 기초가 되는 수업 맥락 및 학습자 특성을 정의합니다.</p>
           </div>
         </div>
 
         <div class="card-body">
           <div class="form-group">
-            <label for="input-target"><i class="fa-solid fa-user-graduate"></i> 1단계 (가): 학습 대상</label>
-            <input type="text" id="input-target" placeholder="예: 초등학교 5학년, AI 선도교사 연수생, 중학생 등">
+            <label for="input-target"><i class="fa-solid fa-user-graduate"></i> (가) 학습 대상</label>
+            <input type="text" id="input-target" placeholder="예: 초등학교 5학년(20명), AI 선도교사 연수생 등">
           </div>
 
           <div class="form-group">
-            <label for="input-standards"><i class="fa-solid fa-bullseye"></i> 1단계 (나): 성취기준 / 학습 목표</label>
+            <label for="input-standards"><i class="fa-solid fa-bullseye"></i> (나) 성취기준 / 학습 목표</label>
             <textarea id="input-standards" rows="3" placeholder="예: [6실05-02] 문제 해결 과정에서 조건에 따른 분기 구조를 이해하고 활용한다."></textarea>
           </div>
 
           <div class="form-row">
             <div class="form-group half">
-              <label for="input-motivation"><i class="fa-solid fa-fire"></i> 1단계 (다): 학습자 동기 요소</label>
-              <input type="text" id="input-motivation" placeholder="예: 게임화(Gamification), 즉각적 흥미 유발, 도전적 미션">
+              <label for="input-motivation"><i class="fa-solid fa-fire"></i> (다) 학습자 동기 요소</label>
+              <input type="text" id="input-motivation" placeholder="예: 게임화(Gamification), 실황 애니메이션 시각 피드백">
             </div>
 
             <div class="form-group half">
-              <label for="input-environment"><i class="fa-solid fa-network-wired"></i> 1단계 (라): 학습 환경</label>
-              <input type="text" id="input-environment" placeholder="예: 1인 1크롬북, 학급 Wi-Fi, 40분 수업 1차시">
+              <label for="input-environment"><i class="fa-solid fa-network-wired"></i> (라) 학습 환경</label>
+              <input type="text" id="input-environment" placeholder="예: 1인 1크롬북, 교실 무선 Wi-Fi, 40분 1차시">
             </div>
           </div>
+        </div>
 
-          <hr class="section-divider">
-
-          <div class="form-group">
-            <label for="input-goal" class="highlight-label"><i class="fa-solid fa-trophy"></i> 2단계: 웹앱 학습경험 목표</label>
-            <textarea id="input-goal" rows="3" placeholder="예: 학습자가 시뮬레이션을 통해 직접 조건을 변경해보며, 스스로 알고리즘의 원리를 깨닫고 성공 피드백을 수집하게 함"></textarea>
-          </div>
+        <div class="wizard-footer-nav">
+          <div></div> <!-- Spacer -->
+          <button class="glass-btn primary btn-next-step" data-next="2">다음 단계로 이동 <i class="fa-solid fa-arrow-right"></i></button>
         </div>
       </section>
 
-      <!-- STEP 3 Card: Dynamic Steps Builder -->
-      <section class="wizard-card glass-panel step-3">
+      <!-- STEP 2 View -->
+      <section class="wizard-card glass-panel wizard-step-view" id="view-step-2">
+        <div class="card-header">
+          <div class="step-num">02</div>
+          <div>
+            <h2>2단계: 웹앱 학습경험 목표 정확하게 설정하기</h2>
+            <p>학습자가 해당 웹앱과의 상호작용을 통해 최종적으로 달성할 핵심 도달 목표를 설정합니다.</p>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <div class="form-group">
+            <label for="input-goal" class="highlight-label"><i class="fa-solid fa-trophy"></i> 해당 웹앱의 학습경험 목표</label>
+            <textarea id="input-goal" rows="5" placeholder="예: 학습자가 시뮬레이션을 통해 직접 조건값을 조작해보며 실시간 결과 변화를 관찰하고, 조건문의 분기 원리를 귀납적으로 탐구하여 성취감을 느낌"></textarea>
+          </div>
+        </div>
+
+        <div class="wizard-footer-nav">
+          <button class="glass-btn secondary btn-prev-step" data-prev="1"><i class="fa-solid fa-arrow-left"></i> 이전 단계</button>
+          <button class="glass-btn primary btn-next-step" data-next="3">다음 단계로 이동 <i class="fa-solid fa-arrow-right"></i></button>
+        </div>
+      </section>
+
+      <!-- STEP 3 View -->
+      <section class="wizard-card glass-panel wizard-step-view" id="view-step-3">
         <div class="card-header">
           <div class="step-num">03</div>
           <div class="header-flex-title">
             <div>
-              <h2>학습자 관점 웹앱 단계(Step) 설계</h2>
-              <p>마우스 드래그 & 드롭으로 순서를 바꿀 수 있습니다. 가네의 수업사태를 연계해보세요.</p>
+              <h2>3단계: 학습자 입장에서의 웹앱 단계 설정</h2>
+              <p>단계를 자유롭게 추가/제거하거나, 마우스 드래그 & 드롭으로 순서를 바꿀 수 있습니다.</p>
             </div>
             <button id="btn-add-step" class="glass-btn primary"><i class="fa-solid fa-plus"></i> 단계 추가</button>
           </div>
@@ -121,71 +167,81 @@
 
         <div class="card-body">
           <div id="steps-container" class="steps-drag-list">
-            <!-- Dynamic step item render here -->
+            <!-- Dynamic step items rendered here -->
           </div>
+        </div>
+
+        <div class="wizard-footer-nav">
+          <button class="glass-btn secondary btn-prev-step" data-prev="2"><i class="fa-solid fa-arrow-left"></i> 이전 단계</button>
+          <button class="glass-btn primary btn-next-step" data-next="4">최종 프롬프트 도출하기 <i class="fa-solid fa-wand-magic-sparkles"></i></button>
+        </div>
+      </section>
+
+      <!-- STEP 4 View -->
+      <section class="wizard-card glass-panel wizard-step-view" id="view-step-4">
+        <div class="card-header">
+          <div class="step-num gold">04</div>
+          <div>
+            <h2>4단계: 앱스스크립트 바이브코딩 프롬프트 도출</h2>
+            <p>작성된 교수설계를 바탕으로 프론트엔드, 백엔드, 구글 시트 헤더 양식을 도출합니다.</p>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <div class="output-action-row">
+            <div class="output-buttons">
+              <button id="btn-generate" class="glass-btn primary-glow"><i class="fa-solid fa-bolt"></i> 프롬프트 즉시 생성</button>
+              <button id="btn-generate-upstage" class="glass-btn glow-upstage"><i class="fa-solid fa-wand-magic-sparkles"></i> Upstage AI로 다듬기</button>
+            </div>
+          </div>
+
+          <div class="prompt-tabs">
+            <button class="tab-btn active" data-tab="tab-prompt"><i class="fa-solid fa-code"></i> 완성된 바이브코딩 프롬프트</button>
+            <button class="tab-btn" data-tab="tab-gas-spec"><i class="fa-solid fa-layer-group"></i> GAS 구조 명세서 미리보기</button>
+          </div>
+
+          <div class="tab-content active" id="tab-prompt">
+            <div class="prompt-box-wrapper">
+              <textarea id="output-prompt" readonly placeholder="[프롬프트 즉시 생성] 또는 [Upstage AI로 다듬기] 버튼을 누르면 이 곳에 완성된 프롬프트가 출력됩니다."></textarea>
+              <div class="prompt-box-overlay" id="prompt-loading" style="display:none;">
+                <div class="spinner"></div>
+                <span>Upstage Solar Pro가 교수설계 맞춤형 프롬프트를 다듬는 중입니다...</span>
+              </div>
+            </div>
+
+            <div class="prompt-action-bar">
+              <button id="btn-copy-prompt" class="action-btn copy"><i class="fa-regular fa-copy"></i> 프롬프트 복사하기</button>
+              <a href="https://aistudio.google.com/prompts/new_chat" target="_blank" rel="noopener noreferrer" class="action-btn external">
+                <i class="fa-solid fa-arrow-up-right-from-square"></i> Google AI Studio로 이동하여 입력하기
+              </a>
+            </div>
+          </div>
+
+          <div class="tab-content" id="tab-gas-spec">
+            <div class="spec-preview-grid">
+              <div class="spec-card">
+                <h4><i class="fa-brands fa-html5"></i> 프론트엔드 (Index.html)</h4>
+                <p>HTML5, Tailwind/Vanilla CSS, Vanilla JS 기반 UI 구성 요소 및 이벤트 핸들러 명세</p>
+              </div>
+              <div class="spec-card">
+                <h4><i class="fa-solid fa-gear"></i> 백엔드 (Code.gs)</h4>
+                <p>doGet(), saveData(), loadData() 등 구글 앱스스크립트 전용 실행 함수 명세</p>
+              </div>
+              <div class="spec-card">
+                <h4><i class="fa-solid fa-table"></i> DB (Google Sheet Header)</h4>
+                <p>타임스탬프, 학습자ID, 단계별 반응데이터, 완료 여부 등 탭별 데이터 헤더 자동설계</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="wizard-footer-nav">
+          <button class="glass-btn secondary btn-prev-step" data-prev="3"><i class="fa-solid fa-arrow-left"></i> 이전 단계</button>
+          <div></div>
         </div>
       </section>
 
     </main>
-
-    <!-- STEP 4 Output Section -->
-    <section class="output-section glass-panel">
-      <div class="output-header">
-        <div class="output-title">
-          <div class="step-num gold">04</div>
-          <div>
-            <h2>바이브코딩 프롬프트 도출 및 생성</h2>
-            <p>설정한 교수설계를 기반으로 구글 앱스스크립트(GAS) 맞춤형 LLM 프롬프트를 도출합니다.</p>
-          </div>
-        </div>
-
-        <div class="output-buttons">
-          <button id="btn-generate-upstage" class="glass-btn glow-upstage"><i class="fa-solid fa-wand-magic-sparkles"></i> Upstage AI로 프롬프트 다듬기</button>
-          <button id="btn-generate" class="glass-btn primary-glow"><i class="fa-solid fa-bolt"></i> 프롬프트 즉시 산출</button>
-        </div>
-      </div>
-
-      <div class="output-body">
-        <div class="prompt-tabs">
-          <button class="tab-btn active" data-tab="tab-prompt"><i class="fa-solid fa-code"></i> 완성된 바이브코딩 프롬프트</button>
-          <button class="tab-btn" data-tab="tab-gas-spec"><i class="fa-solid fa-layer-group"></i> GAS 구조 명세서 미리보기</button>
-        </div>
-
-        <div class="tab-content active" id="tab-prompt">
-          <div class="prompt-box-wrapper">
-            <textarea id="output-prompt" readonly placeholder="위의 1~3단계를 입력하고 [프롬프트 즉시 산출] 또는 [Upstage AI로 프롬프트 다듬기]를 눌러주세요."></textarea>
-            <div class="prompt-box-overlay" id="prompt-loading" style="display:none;">
-              <div class="spinner"></div>
-              <span>Upstage Solar Pro가 교수설계 맞춤형 프롬프트를 다듬는 중입니다...</span>
-            </div>
-          </div>
-
-          <div class="prompt-action-bar">
-            <button id="btn-copy-prompt" class="action-btn copy"><i class="fa-regular fa-copy"></i> 프롬프트 복사하기</button>
-            <a href="https://aistudio.google.com/prompts/new_chat" target="_blank" rel="noopener noreferrer" class="action-btn external">
-              <i class="fa-solid fa-arrow-up-right-from-square"></i> Google AI Studio로 이동하기
-            </a>
-          </div>
-        </div>
-
-        <div class="tab-content" id="tab-gas-spec">
-          <div class="spec-preview-grid">
-            <div class="spec-card">
-              <h4><i class="fa-brands fa-html5"></i> 프론트엔드 (Index.html)</h4>
-              <p>HTML5, Tailwind/Vanilla CSS, Vanilla JS 기반 UI 구성 요소 및 이벤트 핸들러 명세</p>
-            </div>
-            <div class="spec-card">
-              <h4><i class="fa-solid fa-gear"></i> 백엔드 (Code.gs)</h4>
-              <p>doGet(), saveData(), loadData() 등 구글 앱스스크립트 전용 실행 함수 명세</p>
-            </div>
-            <div class="spec-card">
-              <h4><i class="fa-solid fa-table"></i> DB (Google Sheet Header)</h4>
-              <p>타임스탬프, 학습자ID, 단계별 반응데이터, 완료 여부 등 탭별 데이터 헤더 자동설계</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
   </div>
 
   <!-- Upstage API Key Settings Modal -->
@@ -196,13 +252,13 @@
         <button id="btn-close-modal" class="close-btn">&times;</button>
       </div>
       <div class="modal-body">
-        <p>개인 Upstage API Key (Solar-Pro3 지원)를 입력하면 AI가 더 정교한 프롬프트를 다듬어줍니다.</p>
+        <p>개인 Upstage API Key (Solar-Pro3 지원)를 입력하면 AI가 프롬프트를 더 완성도 높게 다듬어 줍니다.</p>
         <div class="form-group">
           <label for="input-api-key">Upstage API Key</label>
           <input type="password" id="input-api-key" placeholder="up_****************">
         </div>
         <div class="code-snippet-box">
-          <small><i class="fa-solid fa-circle-info"></i> API 사용 방식 예시 (Solar-pro3 model)</small>
+          <small><i class="fa-solid fa-circle-info"></i> API 연동 방식 (Solar-pro3 model)</small>
           <pre>base_url: "https://api.upstage.ai/v1"
 model: "solar-pro3"</pre>
         </div>

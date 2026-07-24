@@ -1,9 +1,8 @@
 /**
  * AI Teacher 2026 - Inperson Prompt Generator Engine
- * Autostorage & Gagne's 9 Events Prompt Builder
+ * Multi-Step Wizard Engine with LocalStorage & Upstage Solar Pro
  */
 
-// Gagne Options Definition
 const GAGNE_EVENTS = [
   "단순 기능 구현 (해당 없음)",
   "1. 주의 집중시키기 (Gain attention)",
@@ -17,8 +16,8 @@ const GAGNE_EVENTS = [
   "9. 파지와 전이 촉진하기 (Enhance retention and transfer)"
 ];
 
-// Initial Default State
 const DEFAULT_STATE = {
+  currentStep: 1,
   target: "초등학교 5학년 학생 (20명)",
   standards: "[6실05-02] 문제 해결 과정에서 조건에 따른 실생활 분기 구조를 이해하고 블록 코딩으로 구현한다.",
   motivation: "퀴즈 기반 보상 시스템, 실황 애니메이션 시각 피드백, 도전 과제 점수판",
@@ -51,14 +50,13 @@ const DEFAULT_STATE = {
 
 let appState = JSON.parse(JSON.stringify(DEFAULT_STATE));
 
-// DOM Elements
 document.addEventListener("DOMContentLoaded", () => {
   loadFromLocalStorage();
   initEventListeners();
   renderSteps();
+  switchWizardStep(appState.currentStep || 1);
 });
 
-// Load and Save LocalStorage
 function loadFromLocalStorage() {
   const saved = localStorage.getItem("aiteacher_inperson_state");
   if (saved) {
@@ -69,7 +67,6 @@ function loadFromLocalStorage() {
     }
   }
 
-  // Bind Form Inputs
   document.getElementById("input-target").value = appState.target || "";
   document.getElementById("input-standards").value = appState.standards || "";
   document.getElementById("input-motivation").value = appState.motivation || "";
@@ -79,7 +76,6 @@ function loadFromLocalStorage() {
 }
 
 function saveToLocalStorage() {
-  // Sync state from inputs
   appState.target = document.getElementById("input-target").value;
   appState.standards = document.getElementById("input-standards").value;
   appState.motivation = document.getElementById("input-motivation").value;
@@ -90,15 +86,73 @@ function saveToLocalStorage() {
   localStorage.setItem("aiteacher_inperson_state", JSON.stringify(appState));
 }
 
-// Event Listeners Initialization
+// Wizard Step Switcher
+function switchWizardStep(stepNum) {
+  appState.currentStep = parseInt(stepNum);
+  saveToLocalStorage();
+
+  // Hide all step views
+  document.querySelectorAll(".wizard-step-view").forEach(view => {
+    view.classList.remove("active");
+  });
+
+  // Show target view
+  const targetView = document.getElementById(`view-step-${stepNum}`);
+  if (targetView) {
+    targetView.classList.add("active");
+  }
+
+  // Update Progress Indicator Nodes
+  const nodes = document.querySelectorAll(".step-node");
+  nodes.forEach(node => {
+    const nodeStep = parseInt(node.dataset.stepTarget);
+    node.classList.remove("active", "completed");
+    if (nodeStep === appState.currentStep) {
+      node.classList.add("active");
+    } else if (nodeStep < appState.currentStep) {
+      node.classList.add("completed");
+    }
+  });
+
+  // Update Progress Track Bar
+  const progressPercent = ((appState.currentStep - 1) / 3) * 100;
+  document.getElementById("progress-fill").style.width = `${progressPercent}%`;
+
+  // Auto generate if arriving at Step 4
+  if (appState.currentStep === 4 && !document.getElementById("output-prompt").value) {
+    generatePrompt();
+  }
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
 function initEventListeners() {
-  // Auto Save on Input
+  // Input Auto-save
   const inputs = document.querySelectorAll("input, textarea");
   inputs.forEach(input => {
     input.addEventListener("input", saveToLocalStorage);
   });
 
-  // Buttons
+  // Wizard Step Navigation Click Handlers
+  document.querySelectorAll(".step-node").forEach(node => {
+    node.addEventListener("click", () => {
+      switchWizardStep(node.dataset.stepTarget);
+    });
+  });
+
+  document.querySelectorAll(".btn-next-step").forEach(btn => {
+    btn.addEventListener("click", () => {
+      switchWizardStep(btn.dataset.next);
+    });
+  });
+
+  document.querySelectorAll(".btn-prev-step").forEach(btn => {
+    btn.addEventListener("click", () => {
+      switchWizardStep(btn.dataset.prev);
+    });
+  });
+
+  // Add Step
   document.getElementById("btn-add-step").addEventListener("click", () => {
     const newStep = {
       id: `step-${Date.now()}`,
@@ -110,16 +164,19 @@ function initEventListeners() {
     renderSteps();
   });
 
+  // Reset
   document.getElementById("btn-reset").addEventListener("click", () => {
     if (confirm("모든 입력 내역을 초기 상태로 리셋하시겠습니까?")) {
       appState = JSON.parse(JSON.stringify(DEFAULT_STATE));
       localStorage.removeItem("aiteacher_inperson_state");
       loadFromLocalStorage();
       renderSteps();
+      switchWizardStep(1);
       showToast("모든 데이터가 초기화되었습니다.");
     }
   });
 
+  // Generate Buttons
   document.getElementById("btn-generate").addEventListener("click", () => {
     generatePrompt();
   });
@@ -128,6 +185,7 @@ function initEventListeners() {
     generateWithUpstage();
   });
 
+  // Copy Prompt
   document.getElementById("btn-copy-prompt").addEventListener("click", () => {
     const promptText = document.getElementById("output-prompt").value;
     if (!promptText) {
@@ -135,7 +193,7 @@ function initEventListeners() {
       return;
     }
     navigator.clipboard.writeText(promptText).then(() => {
-      showToast("프롬프트가 클립보드에 복사되었습니다! Google AI Studio에 붙여넣으세요.");
+      showToast("프롬프트가 복사되었습니다! Google AI Studio로 이동해 붙여넣으세요.");
     });
   });
 
@@ -150,7 +208,7 @@ function initEventListeners() {
   document.getElementById("btn-save-api-key").addEventListener("click", () => {
     saveToLocalStorage();
     modal.style.display = "none";
-    showToast("Upstage API Key가 성공적으로 저장되었습니다.");
+    showToast("Upstage API Key가 저장되었습니다.");
   });
 
   // Tabs
@@ -165,7 +223,6 @@ function initEventListeners() {
   });
 }
 
-// Render Dynamic Step Cards with HTML5 Drag & Drop
 function renderSteps() {
   const container = document.getElementById("steps-container");
   container.innerHTML = "";
@@ -177,7 +234,6 @@ function renderSteps() {
     stepEl.dataset.id = step.id;
     stepEl.dataset.index = index;
 
-    // Gagne Options HTML
     const optionsHtml = GAGNE_EVENTS.map(ev => 
       `<option value="${ev}" ${ev === step.gagne ? 'selected' : ''}>${ev}</option>`
     ).join('');
@@ -205,7 +261,6 @@ function renderSteps() {
       </div>
     `;
 
-    // Event Bindings for Inputs inside Step Item
     stepEl.querySelector(".gagne-select").addEventListener("change", (e) => {
       appState.steps[index].gagne = e.target.value;
       saveToLocalStorage();
@@ -223,7 +278,6 @@ function renderSteps() {
       renderSteps();
     });
 
-    // Drag and Drop Handlers
     stepEl.addEventListener("dragstart", handleDragStart);
     stepEl.addEventListener("dragover", handleDragOver);
     stepEl.addEventListener("drop", handleDrop);
@@ -233,7 +287,6 @@ function renderSteps() {
   });
 }
 
-// Drag & Drop State Tracking
 let dragSrcIndex = null;
 
 function handleDragStart(e) {
@@ -243,9 +296,7 @@ function handleDragStart(e) {
 }
 
 function handleDragOver(e) {
-  if (e.preventDefault) {
-    e.preventDefault();
-  }
+  if (e.preventDefault) { e.preventDefault(); }
   e.dataTransfer.dropEffect = "move";
   return false;
 }
@@ -255,7 +306,6 @@ function handleDrop(e) {
   const dropTargetIndex = parseInt(this.dataset.index);
 
   if (dragSrcIndex !== null && dragSrcIndex !== dropTargetIndex) {
-    // Swap/Reorder array elements
     const itemMoved = appState.steps.splice(dragSrcIndex, 1)[0];
     appState.steps.splice(dropTargetIndex, 0, itemMoved);
     saveToLocalStorage();
@@ -268,19 +318,18 @@ function handleDragEnd() {
   this.classList.remove("dragging");
 }
 
-// Prompt Generation Logic (Local Template Engine)
 function generatePrompt() {
   saveToLocalStorage();
 
   const stepsFormatted = appState.steps.map((st, i) => {
     return `[단계 ${i+1}]
 - 가네 수업 사태: ${st.gagne}
-- 학습 경험 및 구체적 구현 요칭: ${st.experience}`;
+- 학습 경험 및 구체적 구현 요청: ${st.experience}`;
   }).join("\n\n");
 
   const promptTemplate = `당신은 구글 앱스스크립트(Google Apps Script, GAS) 기반 교육용 웹 어플리케이션 제작에 최고의 전문성을 가진 시니어 바이브코딩(Vibe Coding) 프롬프트 엔지니어이자 교육공학자입니다.
 
-아래 작성된 [체계적 교수설계 명세서]를 엄격히 준수하여, 사용자가 개발할 교육용 웹앱의 구체적인 프론트엔드(`Index.html`), 백엔드(`Code.gs`), 그리고 구글 시트 탭 별 데이터 헤더 양식을 완벽하게 작성할 수 있도록 **"최고 품질의 앱스스크립트 전용 생성 프롬프트"**를 도출해 주세요.
+아래 작성된 [체계적 교수설계 명세서]를 엄격히 준수하여, 사용자가 개발할 교육용 웹앱의 구체적인 프론트엔드(\`Index.html\`), 백엔드(\`Code.gs\`), 그리고 구글 시트 탭 별 데이터 헤더 양식을 완벽하게 작성할 수 있도록 **"최고 품질의 앱스스크립트 전용 생성 프롬프트"**를 도출해 주세요.
 
 ==============================================
 [체계적 교수설계 명세서 (Instructional Design Specification)]
@@ -318,18 +367,16 @@ ${stepsFormatted}
 위 아키텍처를 토대로 AI가 코드를 즉시 작성할 수 있도록 명확하고 체계적인 마스터 바이브코딩 프롬프트를 제시해 주십시오.`;
 
   document.getElementById("output-prompt").value = promptTemplate;
-  showToast("체계적 교수설계 바이브코딩 프롬프트가 성공적으로 산출되었습니다!");
+  showToast("체계적 교수설계 바이브코딩 프롬프트가 산출되었습니다!");
 }
 
-// Upstage Solar Pro API Generation
 async function generateWithUpstage() {
   saveToLocalStorage();
-  const apiKey = appState.apiKey || "up_jskRfswj0ZmfhlfDvjyVBSY81iuh2"; // Default user key provided or stored
+  const apiKey = appState.apiKey || "up_jskRfswj0ZmfhlfDvjyVBSY81iuh2";
 
   const loadingEl = document.getElementById("prompt-loading");
   loadingEl.style.display = "flex";
 
-  // First generate base prompt
   generatePrompt();
   const basePrompt = document.getElementById("output-prompt").value;
 
@@ -345,7 +392,7 @@ async function generateWithUpstage() {
         messages: [
           {
             role: "system",
-            content: "당신은 가네(Gagné)의 수업 사태 기반 교수설계와 구글 앱스스크립트(GAS) 바이브코딩에 특화된 수석 AI 교육공학자입니다. 제공된 프롬프트를 보완하여 더욱 완성도 높고 교사들이 AI Studio에서 바로 사용할 수 있는 압도적 품질의 마스터 바이브코딩 프롬프트로 다듬어주세요."
+            content: "당신은 가네(Gagné)의 수업 사태 기반 교수설계와 구글 앱스스크립트(GAS) 바이브코딩에 특화된 수석 AI 교육공학자입니다. 제공된 프롬프트를 보완하여 교사들이 Google AI Studio에서 바로 사용할 수 있는 압도적 품질의 마스터 바이브코딩 프롬프트로 다듬어주세요."
           },
           {
             role: "user",
@@ -364,17 +411,16 @@ async function generateWithUpstage() {
     const refinedPrompt = data.choices[0].message.content;
 
     document.getElementById("output-prompt").value = refinedPrompt;
-    showToast("Upstage Solar Pro가 프롬프트를 성공적으로 고도화했습니다!");
+    showToast("Upstage Solar Pro가 프롬프트를 성공적으로 다듬었습니다!");
 
   } catch (err) {
     console.error("Upstage API Error:", err);
-    showToast("Upstage API 연동 중 오류가 발생했습니다. 기본 생성 프롬프트를 유지합니다.");
+    showToast("Upstage API 호출 실패. 기본 생성 프롬프트를 유지합니다.");
   } finally {
     loadingEl.style.display = "none";
   }
 }
 
-// Toast Helper
 function showToast(msg) {
   const toast = document.getElementById("toast");
   toast.innerText = msg;
