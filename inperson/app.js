@@ -48,7 +48,7 @@ function loadFromLocalStorage() {
     }
   }
 
-  if (!appState.apiKey) {
+  if (!appState.apiKey || appState.apiKey === "up_jskRfswj0ZmfhlfDvjyVBSY81iuh2") {
     appState.apiKey = "up_5wGHNHY9ZGB6CAPknaTbcfWIDL1Um";
   }
 
