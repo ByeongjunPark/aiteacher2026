@@ -323,3 +323,8 @@ input[type="text"]:focus, textarea:focus, select:focus {
   position: fixed; bottom: 2rem; right: 2rem; background: linear-gradient(135deg, #10b981, #059669); color: #fff; padding: 0.8rem 1.4rem; border-radius: var(--radius-md); font-weight: 600; font-size: 0.88rem; transform: translateY(100px); opacity: 0; transition: all 0.3s ease; z-index: 2000;
 }
 .toast-notification.show { transform: translateY(0); opacity: 1; }
+
+@media (max-width: 1024px) {
+  .split-workspace { grid-template-columns: 1fr; }
+  .right-summary-panel { border-left: none; border-top: 2px solid rgba(59, 130, 246, 0.3); }
+}
