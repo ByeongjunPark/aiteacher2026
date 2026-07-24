@@ -74,7 +74,7 @@ body {
 .arrow-stepper {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   background: rgba(15, 23, 42, 0.7);
   padding: 6px 12px;
   border-radius: 30px;
@@ -83,8 +83,8 @@ body {
 .step-arrow {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
+  gap: 6px;
+  padding: 6px 12px;
   border-radius: 20px;
   cursor: pointer;
   opacity: 0.5;
@@ -101,11 +101,11 @@ body {
   border: 1px solid rgba(16, 185, 129, 0.4);
 }
 .arrow-num {
-  width: 22px; height: 22px; border-radius: 50%; background: rgba(255, 255, 255, 0.2);
-  display: flex; align-items: center; justify-content: center; font-size: 0.78rem; font-weight: 800;
+  width: 20px; height: 20px; border-radius: 50%; background: rgba(255, 255, 255, 0.2);
+  display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 800;
 }
-.arrow-txt { font-size: 0.85rem; font-weight: 700; white-space: nowrap; }
-.arrow-icon { font-size: 0.7rem; margin-left: 4px; color: rgba(255, 255, 255, 0.4); }
+.arrow-txt { font-size: 0.8rem; font-weight: 700; white-space: nowrap; }
+.arrow-icon { font-size: 0.65rem; margin-left: 2px; color: rgba(255, 255, 255, 0.4); }
 
 .header-btns { display: flex; gap: 8px; }
 .glass-btn {
@@ -147,6 +147,8 @@ body {
   font-size: 0.75rem; font-weight: 800; color: #fff; margin-bottom: 6px;
 }
 .step-badge-pill.gold { background: linear-gradient(135deg, var(--accent-amber), var(--accent-pink)); }
+.step-badge-pill.purple { background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink)); }
+
 .panel-header h2 { font-size: 1.2rem; font-weight: 700; }
 .panel-header p { font-size: 0.85rem; color: var(--text-sub); margin-top: 2px; }
 
@@ -201,24 +203,26 @@ input[type="text"]:focus, textarea:focus, select:focus {
 .m-chip.main { color: #60a5fa; border: 1px solid rgba(96, 165, 250, 0.3); }
 .m-chip.wrap { color: #34d399; border: 1px solid rgba(52, 211, 153, 0.3); }
 
-/* Steps Drag List */
-.steps-drag-list { display: flex; flex-direction: column; gap: 0.8rem; }
-.step-item {
+/* Features & Steps List */
+.features-list, .steps-drag-list { display: flex; flex-direction: column; gap: 0.8rem; }
+.feature-item, .step-item {
   background: rgba(10, 15, 30, 0.7); border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: var(--radius-md); padding: 0.9rem; display: flex; flex-direction: column; gap: 0.7rem;
-  cursor: grab; transition: var(--transition-fast);
+  transition: var(--transition-fast);
 }
+.step-item { cursor: grab; }
 .step-item.dragging { opacity: 0.4; border-color: var(--accent-blue); }
-.step-item-header { display: flex; justify-content: space-between; align-items: center; }
-.drag-handle { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 0.85rem; color: #60a5fa; }
+.feature-item-header, .step-item-header { display: flex; justify-content: space-between; align-items: center; }
+.drag-handle, .feature-handle { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 0.85rem; color: #60a5fa; }
+.feature-handle { color: #c084fc; }
 .step-badge { font-size: 0.75rem; background: rgba(59, 130, 246, 0.2); padding: 2px 8px; border-radius: 10px; }
-.btn-delete-step { background: none; border: none; color: var(--text-sub); cursor: pointer; }
-.btn-delete-step:hover { color: #f87171; }
+.btn-delete-item { background: none; border: none; color: var(--text-sub); cursor: pointer; }
+.btn-delete-item:hover { color: #f87171; }
 
 .action-sm-btn { padding: 6px 12px; border-radius: var(--radius-sm); font-size: 0.8rem; font-weight: 700; cursor: pointer; border: none; }
 .action-sm-btn.primary { background: var(--accent-blue); color: #fff; }
 
-/* STEP 4 Output */
+/* STEP 5 Output */
 .gen-buttons-row { display: flex; gap: 0.8rem; margin-bottom: 0.8rem; }
 .glow-btn { flex: 1; padding: 0.8rem; border-radius: var(--radius-md); font-weight: 700; font-size: 0.9rem; cursor: pointer; border: none; }
 .glow-btn.primary-glow { background: linear-gradient(135deg, #2563eb, #7c3aed); color: #fff; box-shadow: 0 0 15px rgba(124, 58, 237, 0.4); }
@@ -298,18 +302,25 @@ input[type="text"]:focus, textarea:focus, select:focus {
   font-size: 0.75rem; display: flex; align-items: center; justify-content: center;
 }
 .accum-num.gold { background: var(--accent-amber); }
+.accum-num.purple { background: var(--accent-purple); }
 
 .accum-card-body { font-size: 0.85rem; color: var(--text-sub); line-height: 1.5; }
 .summary-item { margin-bottom: 4px; }
 .summary-item strong { color: #cbd5e1; }
 .empty-txt { color: rgba(255, 255, 255, 0.3); italic; }
 
-.summary-steps-tree { display: flex; flex-direction: column; gap: 6px; }
-.tree-step-node {
-  background: rgba(255, 255, 255, 0.04); border-left: 3px solid var(--accent-purple);
+.summary-features-tree, .summary-steps-tree { display: flex; flex-direction: column; gap: 6px; }
+.tree-feature-node {
+  background: rgba(139, 92, 246, 0.08); border-left: 3px solid var(--accent-purple);
   padding: 6px 10px; border-radius: 4px; font-size: 0.8rem;
 }
-.tree-step-title { font-weight: 700; color: #a78bfa; margin-bottom: 2px; }
+.tree-feature-title { font-weight: 700; color: #c084fc; margin-bottom: 2px; }
+
+.tree-step-node {
+  background: rgba(255, 255, 255, 0.04); border-left: 3px solid var(--accent-blue);
+  padding: 6px 10px; border-radius: 4px; font-size: 0.8rem;
+}
+.tree-step-title { font-weight: 700; color: #60a5fa; margin-bottom: 2px; }
 
 .spec-mini-list div { margin-bottom: 4px; font-size: 0.82rem; }
 
