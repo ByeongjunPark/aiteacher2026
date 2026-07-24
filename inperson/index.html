@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="styles.css?v=4">
+  <link rel="stylesheet" href="styles.css?v=5">
 </head>
 <body>
 
@@ -27,7 +27,7 @@
         <h1>체계적 교수설계 기반 <span>바이브코딩 프롬프트 제작소</span></h1>
       </div>
 
-      <!-- Arrow Stepper Navigation (5 Steps) -->
+      <!-- Arrow Stepper Navigation (4 Steps) -->
       <nav class="arrow-stepper">
         <div class="step-arrow active" data-step="1">
           <span class="arrow-num">1</span>
@@ -41,16 +41,11 @@
         </div>
         <div class="step-arrow" data-step="3">
           <span class="arrow-num">3</span>
-          <span class="arrow-txt">핵심 기능 정의</span>
+          <span class="arrow-txt">웹앱 단계 설계</span>
           <i class="fa-solid fa-chevron-right arrow-icon"></i>
         </div>
         <div class="step-arrow" data-step="4">
           <span class="arrow-num">4</span>
-          <span class="arrow-txt">웹앱 단계 설계</span>
-          <i class="fa-solid fa-chevron-right arrow-icon"></i>
-        </div>
-        <div class="step-arrow" data-step="5">
-          <span class="arrow-num">5</span>
           <span class="arrow-txt">프롬프트 도출</span>
         </div>
       </nav>
@@ -72,31 +67,23 @@
           <div class="panel-header">
             <span class="step-badge-pill">STEP 01</span>
             <h2>1단계: 수업 배경 및 기본 정보</h2>
-            <p>지도안의 교과, 단원, 탐구질문, 대상 및 학습 환경을 입력하세요.</p>
-          </div>
-
-          <!-- Preset Selection Chips Bar -->
-          <div class="preset-selector-bar" style="display: flex; gap: 6px; margin-bottom: 0.9rem; align-items: center; flex-wrap: wrap;">
-            <span style="font-size: 0.78rem; font-weight: 700; color: var(--accent-cyan); display: flex; align-items: center; gap: 4px;"><i class="fa-solid fa-lightbulb"></i> 지도안 예시 템플릿:</span>
-            <button id="preset-btn-debate" class="preset-chip active"><i class="fa-solid fa-comments"></i> 예시1: 시장실패 토론 도우미</button>
-            <button id="preset-btn-cost" class="preset-chip"><i class="fa-solid fa-calculator"></i> 예시2: 기회비용 계산기</button>
-            <button id="preset-btn-env" class="preset-chip"><i class="fa-solid fa-leaf"></i> 예시3: 환경 정책 시뮬레이터</button>
+            <p>차시 교수·학습 설계안의 기본 사항을 작성하세요.</p>
           </div>
 
           <div class="form-body">
             <div class="form-group">
-              <label for="input-topic"><i class="fa-solid fa-book"></i> 수업 주제(교과 및 단원)</label>
+              <label for="input-topic"><i class="fa-solid fa-book"></i> 수업 주제 (교과 및 단원)</label>
               <input type="text" id="input-topic" placeholder="예: 통합사회2-(3) 시장경제와 지속가능 발전 - 시장 실패와 정부의 경제적 개입">
             </div>
 
             <div class="form-group">
               <label for="input-inquiry"><i class="fa-solid fa-circle-question"></i> 탐구 질문</label>
-              <input type="text" id="input-inquiry" placeholder="예: 보이지 않는 손은 왜 종종 실패할까? 정부의 경제적 개입은 어느 정도가 적절할까?">
+              <input type="text" id="input-inquiry" placeholder="예: 보이지 않는 손은 왜 종종 실패할까? 정부의 개입은 어디까지가 적절할까?">
             </div>
 
             <div class="form-group">
               <label for="input-target"><i class="fa-solid fa-user-graduate"></i> 학습 대상</label>
-              <input type="text" id="input-target" placeholder="예: 고등학교 1학년 학생 (창원여고, 24명)">
+              <input type="text" id="input-target" placeholder="예: 고등학교 1학년 학생 (24명)">
             </div>
 
             <div class="form-group">
@@ -106,7 +93,7 @@
 
             <div class="form-group">
               <label for="input-environment"><i class="fa-solid fa-laptop-code"></i> 디바이스 및 유의사항 (학습 환경)</label>
-              <input type="text" id="input-environment" placeholder="예: 1인 1디바이스(크롬북/태블릿), 무선 AP, 음성 마이크, GAS 백엔드">
+              <input type="text" id="input-environment" placeholder="예: 1인 1크롬북, 교실 무선 AP, 구글 클래스룸 연동">
             </div>
           </div>
 
@@ -121,78 +108,37 @@
           <div class="panel-header">
             <span class="step-badge-pill">STEP 02</span>
             <h2>2단계: 앱 도입 의도 및 학습 경험 목표</h2>
-            <p>수업 의도 및 본 웹앱이 수업에서 수행할 핵심 목표를 입력하세요.</p>
+            <p>수업 재구성 의도 및 본 웹앱이 수행할 핵심 역할을 작성하세요.</p>
           </div>
 
           <div class="form-body">
             <div class="form-group">
               <label for="input-intent"><i class="fa-solid fa-lightbulb"></i> 수업 의도 및 학생 분석</label>
-              <textarea id="input-intent" rows="3" placeholder="예: 시장 실패와 정부 개입 개념을 어려워하므로 실시간 음성 요약과 AI 심화 발문을 통해 비판적 사고력을 신장시킴"></textarea>
+              <textarea id="input-intent" rows="3" placeholder="예: 시장 실패 개념을 어려워하므로 실시간 모의토론 요약 및 AI 심화 질문을 통해 비판적 사고 역량을 신장시킴"></textarea>
             </div>
 
             <div class="form-group">
               <label for="input-goal" class="gold-label"><i class="fa-solid fa-rocket"></i> 디지털 도구로서 웹앱의 역할 및 핵심 목표</label>
-              <textarea id="input-goal" rows="4" placeholder="예: 찬반 토론 내용을 실시간 요약하고 Upstage AI 심화 발문을 제시하는 토론 수업 지원 웹앱"></textarea>
+              <textarea id="input-goal" rows="4" placeholder="예: 모둠별 찬반 토론을 실시간 기록·요약하고 Upstage AI 심화 발문을 제공하는 토론 지원 웹앱"></textarea>
             </div>
           </div>
 
           <div class="panel-footer">
             <button class="nav-btn secondary btn-prev" data-prev="1"><i class="fa-solid fa-arrow-left"></i> 이전 단계</button>
-            <button class="nav-btn primary btn-next" data-next="3">다음 단계로 (핵심 기능 정의) <i class="fa-solid fa-arrow-right"></i></button>
+            <button class="nav-btn primary btn-next" data-next="3">다음 단계로 (웹앱 단계 설계) <i class="fa-solid fa-arrow-right"></i></button>
           </div>
         </div>
 
-        <!-- Step 3 Input (Core Feature Definition) -->
+        <!-- Step 3 Input (Web App Step Design based on Lesson Plan Template) -->
         <div class="step-input-view" id="input-view-3">
           <div class="panel-header">
             <div class="header-flex">
               <div>
                 <span class="step-badge-pill purple">STEP 03</span>
-                <h2>3단계: 웹앱 핵심 기능 정의</h2>
-                <p>웹앱에서 구현될 주요 기능을 추가/수정하세요. 다음 4단계(단계 설계)에서 이 기능들이 연결됩니다.</p>
+                <h2>3단계: 웹앱 단계별 화면 설계</h2>
+                <p>지도안 차시 설계 양식에 맞춰 [화면 단계/학습형태], [교사/학생활동], [도구의 교육적 역할]을 설계하세요.</p>
               </div>
-              <button id="btn-add-feature" class="action-sm-btn primary"><i class="fa-solid fa-plus"></i> 기능 추가</button>
-            </div>
-          </div>
-
-          <div class="form-body scrollable-body">
-            <div id="features-container" class="features-list">
-              <!-- Dynamic core features rendered here -->
-            </div>
-          </div>
-
-          <div class="panel-footer">
-            <button class="nav-btn secondary btn-prev" data-prev="2"><i class="fa-solid fa-arrow-left"></i> 이전 단계</button>
-            <button class="nav-btn primary btn-next" data-next="4">다음 단계로 (웹앱 단계 설계) <i class="fa-solid fa-arrow-right"></i></button>
-          </div>
-        </div>
-
-        <!-- Step 4 Input (App Step Design & Feature Mapping) -->
-        <div class="step-input-view" id="input-view-4">
-          <div class="panel-header">
-            <div class="header-flex">
-              <div>
-                <span class="step-badge-pill">STEP 04</span>
-                <h2>4단계: 학습자 관점 웹앱 단계 설계</h2>
-                <p>가네 수업사태 및 3단계에서 정의한 핵심 기능을 연계하여 순서대로 설계하세요.</p>
-              </div>
-              <button id="btn-add-step" class="action-sm-btn primary"><i class="fa-solid fa-plus"></i> 단계 추가</button>
-            </div>
-          </div>
-
-          <!-- Gagné Chips Quick Guide -->
-          <div class="gagne-mini-guide">
-            <div class="mini-guide-title"><i class="fa-solid fa-book-open"></i> 가네 수업사태 참고:</div>
-            <div class="mini-chips">
-              <span class="m-chip prep">1.주의집중</span>
-              <span class="m-chip prep">2.목표알리기</span>
-              <span class="m-chip prep">3.선행학습</span>
-              <span class="m-chip main">4.자극제시</span>
-              <span class="m-chip main">5.학습안내</span>
-              <span class="m-chip main">6.수행유도</span>
-              <span class="m-chip main">7.피드백</span>
-              <span class="m-chip wrap">8.평가</span>
-              <span class="m-chip wrap">9.파지/전이</span>
+              <button id="btn-add-step" class="action-sm-btn primary"><i class="fa-solid fa-plus"></i> 화면 단계 추가</button>
             </div>
           </div>
 
@@ -203,17 +149,17 @@
           </div>
 
           <div class="panel-footer">
-            <button class="nav-btn secondary btn-prev" data-prev="3"><i class="fa-solid fa-arrow-left"></i> 이전 단계</button>
-            <button class="nav-btn primary btn-next" data-next="5">최종 프롬프트 도출하기 <i class="fa-solid fa-wand-magic-sparkles"></i></button>
+            <button class="nav-btn secondary btn-prev" data-prev="2"><i class="fa-solid fa-arrow-left"></i> 이전 단계</button>
+            <button class="nav-btn primary btn-next" data-next="4">최종 프롬프트 도출하기 <i class="fa-solid fa-wand-magic-sparkles"></i></button>
           </div>
         </div>
 
-        <!-- Step 5 Output Input -->
-        <div class="step-input-view" id="input-view-5">
+        <!-- Step 4 Output Input -->
+        <div class="step-input-view" id="input-view-4">
           <div class="panel-header">
-            <span class="step-badge-pill gold">STEP 05</span>
-            <h2>5단계: Upstage AI 기반 교수설계 분석 및 최종 프롬프트 도출</h2>
-            <p>1~4단계 교수설계 내역을 Upstage Solar AI가 직접 분석하여 AI API 필요 여부 및 최적의 앱스스크립트 프롬프트를 생성합니다.</p>
+            <span class="step-badge-pill gold">STEP 04</span>
+            <h2>4단계: Upstage AI 기반 교수설계 분석 및 최종 프롬프트 도출</h2>
+            <p>작성된 1~3단계 내역을 바탕으로 Google AI Studio에 입력할 5대 목차 마스터 프롬프트를 도출합니다.</p>
           </div>
 
           <div class="form-body">
@@ -226,7 +172,7 @@
               <textarea id="output-prompt" readonly placeholder="[🪄 Upstage AI로 교수설계 분석 & 프롬프트 생성] 버튼을 클릭하세요."></textarea>
               <div class="prompt-box-overlay" id="prompt-loading" style="display:none;">
                 <div class="spinner"></div>
-                <span id="loading-txt">Upstage Solar Pro가 1~4단계 교수설계 및 AI API 필요 여부를 종합 분석 중입니다...</span>
+                <span id="loading-txt">Upstage Solar Pro가 1~3단계 교수설계 내역을 종합 분석하여 마스터 프롬프트를 도출 중입니다...</span>
               </div>
             </div>
 
@@ -239,7 +185,7 @@
           </div>
 
           <div class="panel-footer">
-            <button class="nav-btn secondary btn-prev" data-prev="4"><i class="fa-solid fa-arrow-left"></i> 이전 단계</button>
+            <button class="nav-btn secondary btn-prev" data-prev="3"><i class="fa-solid fa-arrow-left"></i> 이전 단계</button>
             <div></div>
           </div>
         </div>
@@ -282,23 +228,10 @@
             </div>
           </div>
 
-          <!-- Accumulated Step 3 (Core Features) -->
+          <!-- Accumulated Step 3 (App Steps Design) -->
           <div class="accum-card" id="accum-card-3">
             <div class="accum-card-title">
               <span class="accum-num purple">3</span>
-              <span>웹앱 핵심 기능 (<span id="summary-feature-count">0</span>개)</span>
-            </div>
-            <div class="accum-card-body">
-              <div id="summary-features-list" class="summary-features-tree">
-                <!-- Live updated feature list -->
-              </div>
-            </div>
-          </div>
-
-          <!-- Accumulated Step 4 (App Steps & Feature Mapping) -->
-          <div class="accum-card" id="accum-card-4">
-            <div class="accum-card-title">
-              <span class="accum-num">4</span>
               <span>웹앱 시나리오 단계 (<span id="summary-step-count">0</span>개)</span>
             </div>
             <div class="accum-card-body">
@@ -308,10 +241,10 @@
             </div>
           </div>
 
-          <!-- Accumulated Step 5 Preview Specs -->
-          <div class="accum-card" id="accum-card-5">
+          <!-- Accumulated Step 4 Preview Specs -->
+          <div class="accum-card" id="accum-card-4">
             <div class="accum-card-title">
-              <span class="accum-num gold">5</span>
+              <span class="accum-num gold">4</span>
               <span>도출될 GAS 시스템 구조</span>
             </div>
             <div class="accum-card-body spec-mini-list">
@@ -335,7 +268,7 @@
         <button id="btn-close-modal" class="close-btn">&times;</button>
       </div>
       <div class="modal-body">
-        <p>개인 Upstage API Key (Solar-Pro3)를 입력하면 AI가 더 완성도 높게 다듬어 줍니다.</p>
+        <p>개인 Upstage API Key (Solar-Pro3)를 입력하면 AI가 더 완성도 높게 분석해 줍니다.</p>
         <div class="form-group">
           <label for="input-api-key">Upstage API Key</label>
           <input type="password" id="input-api-key" placeholder="up_****************">
@@ -349,6 +282,6 @@
 
   <div id="toast" class="toast-notification"></div>
 
-  <script src="app.js?v=4"></script>
+  <script src="app.js?v=5"></script>
 </body>
 </html>

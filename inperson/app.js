@@ -1,98 +1,27 @@
 /**
  * AI Teacher 2026 - Inperson Prompt Generator Engine
- * 5-Step Wizard Engine with Social Studies Presets & Upstage API Integration
+ * Simplified 4-Element Step Design based on Lesson Plan Template
  */
-
-const GAGNE_EVENTS = [
-  "0. [앱 초기 설정] 학번/이름 로그인 및 사용자 등록",
-  "0. [앱 초기 설정] 모둠 및 찬반 입장 선택 화면",
-  "0. 단순 기능 구현 (Gagné 해당 없음)",
-  "1. 주의 집중시키기 (Gain attention)",
-  "2. 학습 목표 알리기 (Inform learners of objectives)",
-  "3. 선행학습 상기시키기 (Stimulate recall of prior learning)",
-  "4. 자극 제시하기 (Present the content)",
-  "5. 학습 안내 제시하기 (Provide learning guidance)",
-  "6. 수행을 유도하기 (Elicit performance)",
-  "7. 피드백 제공하기 (Provide feedback)",
-  "8. 수행 기반 평가 실시하기 (Assess performance)",
-  "9. 파지와 전이 촉진하기 (Enhance retention and transfer)"
-];
-
-// Presets Collection for Social Studies
-const LESSON_PRESETS = {
-  debate: {
-    topic: "고등학교 1학년 통합사회2-(3) 시장경제와 지속가능 발전 - 시장 실패와 정부의 경제적 개입",
-    inquiry: "보이지 않는 손은 왜 종종 실패할까? 시장 실패에 대한 정부의 경제적 개입은 어느 정도의 선이 적절할까?",
-    target: "고등학교 1학년 학생 (창원여고, 24명)",
-    standards: "[10통사2-03-01] 자본주의의 역사적 전개 과정과 특징을 조사하고, 시장과 정부의 관계를 중심으로 다양한 삶의 방식을 비교 평가한다.\n[10통사2-03-02] 합리적 선택의 의미와 한계를 파악하고, 지속가능발전을 위해 요청되는 정부의 역할과 책임을 탐구한다.",
-    environment: "1인 1디바이스(크롬북/태블릿), 무선 AP, 음성 녹음 마이크, Google Apps Script 백엔드",
-    intent: "시장 실패(공공재, 독과점, 외부효과)와 정부 개입(규제, 보조금)에 대한 거시 경제 개념을 어려워하므로, 논쟁 토론 중 실시간 음성/텍스트 입력을 통해 입장을 정리해주고 AI 심화 발문을 제공하여 비판적·분석적 사고 역량을 신장시키고자 함.",
-    goal: "모둠별 찬반 토론 내용을 실시간 요약·정리하고, 토론 흐름을 분석하여 비판적 사고를 자극하는 AI 심화 발문과 입장 비교 리포트를 자동 생성해주는 AI 토론수업 도우미 웹앱",
-    features: [
-      { id: "feat-1", title: "토론 음성 녹취 & 입장별 핵심 주장 실시간 요약", desc: "모둠 토론 음성/텍스트를 받아서 정부 개입 찬성 vs 반대 입장별 핵심 주장과 근거를 실시간 항목별로 자동 요약해 주는 기능" },
-      { id: "feat-2", title: "Upstage Solar-Pro3 연동 AI 심화 발문 생성기", desc: "토론의 논리적 맹점을 AI(Upstage API)가 분석하여 비판적 사고를 촉진하는 맞춤형 반론 및 심화 질문을 제시해 주는 기능" },
-      { id: "feat-3", title: "시장 실패 vs 정부 실패 찬반 대립 논거 비교 대시보드", desc: "공공재, 외부효과, 독과점 사례별로 학생들의 찬반 논거를 시각적 매트릭스로 비교 분석해 주는 기능" },
-      { id: "feat-4", title: "구글 시트 연동 토론 성찰 리포트 & 학급 공유 보드", desc: "모둠별 토론 기록, AI 심화 발문 응답, 성찰문을 구글 시트 DB에 저장하고 공유하는 백엔드 연동 기능" }
-    ],
-    steps: [
-      { id: "step-0", type: "개별", gagne: "0. [앱 초기 설정] 학번/이름 로그인 및 사용자 등록", featureId: "", experience: "학번, 이름 입력 후 개인별 접속 세션 생성 및 사용자 등록" },
-      { id: "step-0-2", type: "모둠", gagne: "0. [앱 초기 설정] 모둠 및 찬반 입장 선택 화면", featureId: "", experience: "모둠 번호 선택 및 시장 실패에 대한 정부 개입 찬성(규제/보조금) vs 반대(자율/정부실패) 입장 선택" },
-      { id: "step-1", type: "전체", gagne: "1. 주의 집중시키기 (Gain attention)", featureId: "feat-1", experience: "환경오염(외부효과) 사례 카드 제시 후 '정부가 어디까지 개입해야 하는가?' 딜레마 문제 상기" },
-      { id: "step-2", type: "모둠", gagne: "6. 수행을 유도하기 (Elicit performance)", featureId: "feat-1", experience: "모둠별 찬반 토론 수행 시 음성 녹취 기능으로 발언을 기록하고 입장별 주요 근거 자동 요약 카드 확인" },
-      { id: "step-3", type: "모둠", gagne: "7. 피드백 제공하기 (Provide feedback)", featureId: "feat-2", experience: "요약된 논거를 바탕으로 Upstage Solar AI가 생성한 '정부 실패의 부작용은 어떻게 극복할 것인가?' 등의 심화 발문 피드백에 대해 모둠 재토론 진행" },
-      { id: "step-4", type: "개별", gagne: "8. 수행 기반 평가 실시하기 (Assess performance)", featureId: "feat-3", experience: "찬반 대립 논거 비교 대시보드에서 자신의 초기 입장과 최종 입장의 변화를 비교하고 합리적 개입선에 대한 성찰문 작성" },
-      { id: "step-5", type: "전체", gagne: "9. 파지와 전이 촉진하기 (Enhance retention and transfer)", featureId: "feat-4", experience: "구글 시트 연동 학급 전체 토론 대시보드를 공유하며 시장과 정부의 조화로운 균형에 대한 최종 1줄 소감 제출" }
-    ]
-  },
-
-  cost: {
-    topic: "통합사회2-(3) 시장경제와 지속가능 발전 - 명시적 비용과 암묵적 비용을 고려한 합리적 선택",
-    inquiry: "내가 오늘 내린 선택은 정말 공짜 선택이었을까? 내 선택의 편익과 기회비용은 무엇일까?",
-    target: "고등학교 1학년 학생 (창원여고, 24명)",
-    standards: "[10통사2-03-02] 합리적 선택의 의미와 한계를 파악하고, 지속가능발전을 위해 요청되는 각 주체의 역할과 책임을 탐구한다.",
-    environment: "1인 1디바이스(크롬북/태블릿), 무선 AP, Google Apps Script 백엔드",
-    intent: "기회비용(명시적 비용 + 암묵적 비용) 계산의 복잡함을 시뮬레이터 조작을 통해 직관적으로 체험하고 합리적 의사결정을 유도함.",
-    goal: "대안별 편익, 명시적 비용, 암묵적 비용을 실시간 계산하고, 조건 변화에 따른 순이익 그래프를 시각화해 주는 경제 실습 시뮬레이터",
-    features: [
-      { id: "feat-1", title: "명시적 비용 + 암묵적 비용 실시간 기회비용 계산기", desc: "각 대안을 선택할 때 지출되는 명시적 비용과 포기한 대안의 가치(암묵적 비용)를 합산하여 기회비용을 산출하는 라이브 계산기" },
-      { id: "feat-2", title: "대안별 순이익 비교 및 합리적 선택 시각화 그래프", desc: "순이익(편익 - 기회비용)이 0보다 큰 대안을 자동으로 판별하고 막대그래프로 최선의 선택을 시각화해 주는 기능" },
-      { id: "feat-3", title: "용돈 및 예산 제약 조건 동적 조작 시뮬레이터", desc: "예산 제약 조건을 슬라이더로 조작하며 선택 대안의 변화를 실시간 관찰하는 기능" },
-      { id: "feat-4", title: "구글 시트 연동 개별 기회비용 계산 성찰 리포트", desc: "학생별 계산 결과와 선택 이유를 구글 시트 DB에 제출하는 기능" }
-    ],
-    steps: [
-      { id: "step-1", type: "전체", gagne: "1. 주의 집중시키기 (Gain attention)", featureId: "feat-1", experience: "영화 관람 vs 동아리 활동 선택 시 포기한 시간과 비용 딜레마 사례 제시" },
-      { id: "step-2", type: "개별", gagne: "5. 학습 안내 제시하기 (Provide learning guidance)", featureId: "feat-1", experience: "대안 선택 시 명시적 비용과 포기한 대안 중 최대 가치가 라이브로 계산되는 인터페이스 탐색" },
-      { id: "step-3", type: "개별", gagne: "6. 수행을 유도하기 (Elicit performance)", featureId: "feat-2", experience: "3가지 용돈 지출 미션 상황에서 순이익이 가장 큰 합리적 선택을 판단하는 알고리즘 미션 수행" },
-      { id: "step-4", type: "전체", gagne: "9. 파지와 전이 촉진하기 (Enhance retention and transfer)", featureId: "feat-4", experience: "자신의 실제 기회비용 일기와 합리적 소비 결심을 구글 시트 DB에 제출하여 공유" }
-    ]
-  },
-
-  env: {
-    topic: "통합사회2-(3) 시장경제와 지속가능 발전 - 외부 불경제와 지속가능한 환경 정책",
-    inquiry: "공장 환경오염(외부 불경제) 문제, 정부의 피구세(세금) 부과와 탄소배출권 거래제 중 무엇이 더 효과적일까?",
-    target: "고등학교 1학년 학생 (창원여고, 24명)",
-    standards: "[10통사2-03-02] 지속가능발전을 위해 요청되는 정부, 기업가, 노동자, 소비자의 바람직한 역할과 책임을 탐구한다.",
-    environment: "1인 1디바이스(크롬북/태블릿), 무선 AP, Google Apps Script 백엔드",
-    intent: "외부 불경제로 인한 시장 실패 상황에서 피구세와 탄소배출권 시장의 작동 원리를 모의 시뮬레이션을 통해 직접 비교 탐구함.",
-    goal: "기업과 정부 입장에서 환경 세금율과 배출권 가격을 조작해보며 오염물질 감축 효과와 경제적 영향을 모의 실험하는 정책 시뮬레이터",
-    features: [
-      { id: "feat-1", title: "외부 불경제 오염물질 배출량 및 사회적 비용 실시간 시뮬레이터", desc: "기업 생산량에 따른 오염물질 배출량과 사회적 피해 비용을 계산해 주는 시뮬레이션 기능" },
-      { id: "feat-2", title: "정부 정책 수단(피구세 부과 vs 탄소배출권 거래) 모의 실험기", desc: "세금 세율과 배출권 공급량을 조작하여 기업의 감축 유인 반응을 비교 테스트하는 기능" },
-      { id: "feat-3", title: "기업/소비자/정부 3자 편익 및 지속가능성 시각 차트", desc: "정책 적용 후 3개 주체의 경제적 편익과 총 오염 감축량을 대시보드로 시각화해 주는 기능" },
-      { id: "feat-4", title: "구글 시트 연동 지속가능한 환경 정책 소감문 공유 보드", desc: "자신이 제안한 최적의 환경 정책안을 구글 시트 DB에 제출하고 학급 투표에 참여하는 기능" }
-    ],
-    steps: [
-      { id: "step-1", type: "전체", gagne: "1. 주의 집중시키기 (Gain attention)", featureId: "feat-1", experience: "공장 매연으로 인한 주민 피해(외부 불경제) 뉴스 영상 제시 및 문제 제기" },
-      { id: "step-2", type: "모둠", gagne: "6. 수행을 유도하기 (Elicit performance)", featureId: "feat-2", experience: "모둠별로 '세금 부과안'과 '배출권 거래안' 시뮬레이터를 조작하며 기업 생산 반응 테스트" },
-      { id: "step-3", type: "모둠", gagne: "7. 피드백 제공하기 (Provide feedback)", featureId: "feat-3", experience: "3자 편익 그래프를 통해 세금 부과 vs 배출권 거래 중 사회적 효율성이 높은 정책 선택" },
-      { id: "step-4", type: "전체", gagne: "9. 파지와 전이 촉진하기 (Enhance retention and transfer)", featureId: "feat-4", experience: "우리 모둠이 제안하는 바람직한 정부와 기업의 역할 정책 소감문을 구글 시트에 제출" }
-    ]
-  }
-};
 
 const DEFAULT_STATE = {
   currentStep: 1,
-  ...LESSON_PRESETS.debate,
+  topic: "",
+  inquiry: "",
+  target: "",
+  standards: "",
+  environment: "",
+  intent: "",
+  goal: "",
+  steps: [
+    {
+      id: "step-1",
+      title: "",
+      type: "전체",
+      teacherAct: "",
+      studentAct: "",
+      toolRole: ""
+    }
+  ],
   apiKey: "up_jskRfswj0ZmfhlfDvjyVBSY81iuh2"
 };
 
@@ -101,7 +30,6 @@ let appState = JSON.parse(JSON.stringify(DEFAULT_STATE));
 document.addEventListener("DOMContentLoaded", () => {
   loadFromLocalStorage();
   initEventListeners();
-  renderFeatures();
   renderSteps();
   updateLiveSummary();
   switchWizardStep(appState.currentStep || 1);
@@ -112,7 +40,9 @@ function loadFromLocalStorage() {
   if (saved) {
     try {
       appState = JSON.parse(saved);
-      if (!appState.features) appState.features = JSON.parse(JSON.stringify(DEFAULT_STATE.features));
+      if (!appState.steps || appState.steps.length === 0) {
+        appState.steps = JSON.parse(JSON.stringify(DEFAULT_STATE.steps));
+      }
     } catch (e) {
       console.error("Failed to parse local storage", e);
     }
@@ -140,41 +70,6 @@ function saveToLocalStorage() {
 
   localStorage.setItem("aiteacher_inperson_state", JSON.stringify(appState));
   updateLiveSummary();
-}
-
-function applyPreset(presetKey) {
-  const preset = LESSON_PRESETS[presetKey];
-  if (!preset) return;
-
-  appState.topic = preset.topic;
-  appState.inquiry = preset.inquiry;
-  appState.target = preset.target;
-  appState.standards = preset.standards;
-  appState.environment = preset.environment;
-  appState.intent = preset.intent;
-  appState.goal = preset.goal;
-  appState.features = JSON.parse(JSON.stringify(preset.features));
-  appState.steps = JSON.parse(JSON.stringify(preset.steps));
-
-  // Update DOM inputs
-  document.getElementById("input-topic").value = appState.topic;
-  document.getElementById("input-inquiry").value = appState.inquiry;
-  document.getElementById("input-target").value = appState.target;
-  document.getElementById("input-standards").value = appState.standards;
-  document.getElementById("input-environment").value = appState.environment;
-  document.getElementById("input-intent").value = appState.intent;
-  document.getElementById("input-goal").value = appState.goal;
-
-  // Update active preset button highlight
-  document.querySelectorAll(".preset-chip").forEach(btn => btn.classList.remove("active"));
-  const activeBtn = document.getElementById(`preset-btn-${presetKey}`);
-  if (activeBtn) activeBtn.classList.add("active");
-
-  saveToLocalStorage();
-  renderFeatures();
-  renderSteps();
-  updateLiveSummary();
-  showToast(`[${preset.topic.split('-')[0]}] 예시 템플릿이 적용되었습니다.`);
 }
 
 // Switch Left View Step & Highlight Arrow
@@ -208,64 +103,12 @@ function switchWizardStep(stepNum) {
   const targetCard = document.getElementById(`accum-card-${stepNum}`);
   if (targetCard) targetCard.classList.add("highlight");
 
-  if (appState.currentStep === 5 && !document.getElementById("output-prompt").value) {
-    generateWithUpstage();
+  if (appState.currentStep === 4 && !document.getElementById("output-prompt").value) {
+    generatePrompt();
   }
 }
 
-// Render Step 3: Core Features Manager
-function renderFeatures() {
-  const container = document.getElementById("features-container");
-  container.innerHTML = "";
-
-  appState.features.forEach((feat, index) => {
-    const featEl = document.createElement("div");
-    featEl.className = "feature-item";
-    featEl.dataset.id = feat.id;
-
-    featEl.innerHTML = `
-      <div class="feature-item-header">
-        <div class="feature-handle">
-          <i class="fa-solid fa-cube"></i>
-          <span>핵심 기능 ${index + 1}</span>
-        </div>
-        <button class="btn-delete-item btn-delete-feat" data-index="${index}" title="삭제"><i class="fa-solid fa-trash-can"></i></button>
-      </div>
-
-      <div class="form-group">
-        <label><i class="fa-solid fa-heading"></i> 기능 명칭</label>
-        <input type="text" class="feat-title-input" data-index="${index}" value="${feat.title || ''}" placeholder="기능 명칭을 입력하세요">
-      </div>
-
-      <div class="form-group">
-        <label><i class="fa-solid fa-align-left"></i> 구체적 기능 설명</label>
-        <textarea rows="2" class="feat-desc-input" data-index="${index}" placeholder="이 기능이 웹앱에서 구체적으로 어떤 작동을 하는지 적으세요.">${feat.desc || ''}</textarea>
-      </div>
-    `;
-
-    featEl.querySelector(".feat-title-input").addEventListener("input", (e) => {
-      appState.features[index].title = e.target.value;
-      saveToLocalStorage();
-      renderSteps();
-    });
-
-    featEl.querySelector(".feat-desc-input").addEventListener("input", (e) => {
-      appState.features[index].desc = e.target.value;
-      saveToLocalStorage();
-    });
-
-    featEl.querySelector(".btn-delete-feat").addEventListener("click", () => {
-      appState.features.splice(index, 1);
-      saveToLocalStorage();
-      renderFeatures();
-      renderSteps();
-    });
-
-    container.appendChild(featEl);
-  });
-}
-
-// Render Step 4: Step Design & Feature Mapping
+// Render Step 3: Web App Step Design (4 Elements per Step)
 function renderSteps() {
   const container = document.getElementById("steps-container");
   container.innerHTML = "";
@@ -277,56 +120,57 @@ function renderSteps() {
     stepEl.dataset.id = step.id;
     stepEl.dataset.index = index;
 
-    const optionsHtml = GAGNE_EVENTS.map(ev => 
-      `<option value="${ev}" ${ev === step.gagne ? 'selected' : ''}>${ev}</option>`
-    ).join('');
-
     const typeOptions = ["전체", "모둠", "개별"].map(t => 
-      `<option value="${t}" ${t === (step.type || '전체') ? 'selected' : ''}>${t}</option>`
+      `<option value="${t}" ${t === (step.type || '전체') ? 'selected' : ''}>${t} 활동</option>`
     ).join('');
-
-    let featureOptions = `<option value="">-- 핵심 기능 연계 안함 --</option>`;
-    appState.features.forEach(f => {
-      featureOptions += `<option value="${f.id}" ${f.id === step.featureId ? 'selected' : ''}>${f.title || '무제 기능'}</option>`;
-    });
 
     stepEl.innerHTML = `
       <div class="step-item-header">
         <div class="drag-handle">
           <i class="fa-solid fa-grip-vertical"></i>
-          <span>단계 ${index + 1}</span>
-          <span class="step-badge">${step.gagne.split(' ')[0]}</span>
+          <span>화면 단계 ${index + 1}</span>
+          <span class="step-badge">${step.type || '전체'}</span>
         </div>
         <button class="btn-delete-item btn-delete-step" data-index="${index}" title="삭제"><i class="fa-solid fa-trash-can"></i></button>
       </div>
 
-      <div class="form-group-row" style="display: grid; grid-template-columns: 1fr 2fr; gap: 10px; align-items: start;">
-        <div class="form-group" style="margin-bottom: 0;">
-          <label><i class="fa-solid fa-users"></i> 활동 형태</label>
+      <!-- 1 & 2: 화면 흐름 단계명 & 전체/개별/모둠활동 구분 -->
+      <div class="form-group-row" style="display: grid; grid-template-columns: 2fr 1fr; gap: 10px; align-items: start;">
+        <div class="form-group">
+          <label><i class="fa-solid fa-layer-group"></i> 1. 화면 흐름 단계 (단계명 / 활동제목)</label>
+          <input type="text" class="step-title-input" data-index="${index}" value="${step.title || ''}" placeholder="예: 1단계 - 동기 유발 및 로그인 / 2단계 - 토론 수행">
+        </div>
+        <div class="form-group">
+          <label><i class="fa-solid fa-users"></i> 2. 학습 형태</label>
           <select class="type-select" data-index="${index}">
             ${typeOptions}
           </select>
         </div>
-        <div class="form-group" style="margin-bottom: 0;">
-          <label><i class="fa-solid fa-layer-group"></i> 가네 수업 사태 선택</label>
-          <select class="gagne-select" data-index="${index}">
-            ${optionsHtml}
-          </select>
+      </div>
+
+      <!-- 3: 교사활동 / 학생활동 구분 -->
+      <div class="form-group-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-items: start;">
+        <div class="form-group">
+          <label><i class="fa-solid fa-chalkboard-user"></i> 3-1. 교사 활동</label>
+          <textarea rows="2" class="teacher-act-input" data-index="${index}" placeholder="교사가 제공하는 안내, 사례 제시, 발문 내용">${step.teacherAct || ''}</textarea>
+        </div>
+        <div class="form-group">
+          <label><i class="fa-solid fa-user-pen"></i> 3-2. 학생 활동</label>
+          <textarea rows="2" class="student-act-input" data-index="${index}" placeholder="학습자가 수행하는 입력, 토론, 관찰, 탐구 내용">${step.studentAct || ''}</textarea>
         </div>
       </div>
 
-      <div class="form-group" style="margin-top: 10px;">
-        <label style="color: #c084fc;"><i class="fa-solid fa-link"></i> 연계할 핵심 기능 (3단계 연동)</label>
-        <select class="feat-select" data-index="${index}">
-          ${featureOptions}
-        </select>
-      </div>
-
-      <div class="form-group" style="margin-top: 10px;">
-        <label><i class="fa-solid fa-pen-nib"></i> 유도 학습 경험 및 인터랙션</label>
-        <textarea rows="2" class="experience-input" data-index="${index}" placeholder="이 단계에서 연계 기능을 활용해 학습자가 경험할 화면, 인터랙션을 작성하세요.">${step.experience || ''}</textarea>
+      <!-- 4: 해당 화면에서 도구의 교육적 역할 설명 -->
+      <div class="form-group">
+        <label style="color: #c084fc;"><i class="fa-solid fa-wand-magic-sparkles"></i> 4. 해당 화면에서 도구(웹앱)의 교육적 역할 및 기능 설명</label>
+        <textarea rows="2" class="tool-role-input" data-index="${index}" placeholder="웹앱 화면이 수행하는 역할 (예: 찬반 발언 음성 녹취 요약, AI 심화 질문 생성, 결과 시각 그래프 피드백 등)">${step.toolRole || ''}</textarea>
       </div>
     `;
+
+    stepEl.querySelector(".step-title-input").addEventListener("input", (e) => {
+      appState.steps[index].title = e.target.value;
+      saveToLocalStorage();
+    });
 
     stepEl.querySelector(".type-select").addEventListener("change", (e) => {
       appState.steps[index].type = e.target.value;
@@ -334,20 +178,18 @@ function renderSteps() {
       renderSteps();
     });
 
-    stepEl.querySelector(".gagne-select").addEventListener("change", (e) => {
-      appState.steps[index].gagne = e.target.value;
+    stepEl.querySelector(".teacher-act-input").addEventListener("input", (e) => {
+      appState.steps[index].teacherAct = e.target.value;
       saveToLocalStorage();
-      renderSteps();
     });
 
-    stepEl.querySelector(".feat-select").addEventListener("change", (e) => {
-      appState.steps[index].featureId = e.target.value;
+    stepEl.querySelector(".student-act-input").addEventListener("input", (e) => {
+      appState.steps[index].studentAct = e.target.value;
       saveToLocalStorage();
-      renderSteps();
     });
 
-    stepEl.querySelector(".experience-input").addEventListener("input", (e) => {
-      appState.steps[index].experience = e.target.value;
+    stepEl.querySelector(".tool-role-input").addEventListener("input", (e) => {
+      appState.steps[index].toolRole = e.target.value;
       saveToLocalStorage();
     });
 
@@ -366,7 +208,7 @@ function renderSteps() {
   });
 }
 
-// Drag and Drop for Step 4
+// Drag and Drop for Step 3
 let dragSrcIndex = null;
 function handleDragStart(e) {
   dragSrcIndex = parseInt(this.dataset.index);
@@ -412,7 +254,8 @@ function updateLiveSummary() {
 
   stdEl.innerText = appState.standards || "미입력";
   stdEl.className = appState.standards ? "" : "empty-txt";
-envEl.innerText = appState.environment || "미입력";
+
+  envEl.innerText = appState.environment || "미입력";
   envEl.className = appState.environment ? "" : "empty-txt";
 
   // Step 2
@@ -424,42 +267,22 @@ envEl.innerText = appState.environment || "미입력";
   goalEl.innerText = appState.goal || "미입력";
   goalEl.className = appState.goal ? "" : "empty-txt";
 
-  // Step 3 (Features)
-  document.getElementById("summary-feature-count").innerText = appState.features.length;
-  const featTreeContainer = document.getElementById("summary-features-list");
-  featTreeContainer.innerHTML = "";
-
-  if (appState.features.length === 0) {
-    featTreeContainer.innerHTML = `<span class="empty-txt">등록된 핵심 기능이 없습니다.</span>`;
-  } else {
-    appState.features.forEach((ft, idx) => {
-      const node = document.createElement("div");
-      node.className = "tree-feature-node";
-      node.innerHTML = `
-        <div class="tree-feature-title">기능 ${idx + 1}: ${ft.title || '무제 기능'}</div>
-        <div>${ft.desc || '(기능 설명 미작성)'}</div>
-      `;
-      featTreeContainer.appendChild(node);
-    });
-  }
-
-  // Step 4 (Steps)
+  // Step 3 (Steps List)
   document.getElementById("summary-step-count").innerText = appState.steps.length;
   const treeContainer = document.getElementById("summary-steps-list");
   treeContainer.innerHTML = "";
 
   if (appState.steps.length === 0) {
-    treeContainer.innerHTML = `<span class="empty-txt">등록된 단계가 없습니다.</span>`;
+    treeContainer.innerHTML = `<span class="empty-txt">등록된 화면 단계가 없습니다.</span>`;
   } else {
     appState.steps.forEach((st, idx) => {
-      const linkedFeat = appState.features.find(f => f.id === st.featureId);
-      const featTag = linkedFeat ? `<span class="badge-tag" style="margin-left: 5px; color: #c084fc;">[연계: ${linkedFeat.title}]</span>` : '';
-      
       const node = document.createElement("div");
       node.className = "tree-step-node";
       node.innerHTML = `
-        <div class="tree-step-title">단계 ${idx + 1}: ${st.gagne} <span class="badge-tag" style="margin-left: 5px; font-size: 0.7em;">${st.type || '전체'}</span> ${featTag}</div>
-        <div>${st.experience || '(경험 내용 미작성)'}</div>
+        <div class="tree-step-title">단계 ${idx + 1}: ${st.title || '(단계명 미입력)'} <span class="badge-tag" style="margin-left: 5px; font-size: 0.7em;">${st.type || '전체'}</span></div>
+        <div style="margin-top: 2px;"><strong>교사:</strong> ${st.teacherAct || '미작성'}</div>
+        <div><strong>학생:</strong> ${st.studentAct || '미작성'}</div>
+        <div style="color: #c084fc; margin-top: 2px;"><strong>도구 역할:</strong> ${st.toolRole || '미작성'}</div>
       `;
       treeContainer.appendChild(node);
     });
@@ -471,15 +294,6 @@ function initEventListeners() {
   inputs.forEach(input => {
     input.addEventListener("input", saveToLocalStorage);
   });
-
-  // Preset Buttons Clicks
-  const btnDebate = document.getElementById("preset-btn-debate");
-  const btnCost = document.getElementById("preset-btn-cost");
-  const btnEnv = document.getElementById("preset-btn-env");
-
-  if (btnDebate) btnDebate.addEventListener("click", () => applyPreset("debate"));
-  if (btnCost) btnCost.addEventListener("click", () => applyPreset("cost"));
-  if (btnEnv) btnEnv.addEventListener("click", () => applyPreset("env"));
 
   // Arrow Stepper Clicks
   document.querySelectorAll(".step-arrow").forEach(arr => {
@@ -496,27 +310,15 @@ function initEventListeners() {
     btn.addEventListener("click", () => switchWizardStep(btn.dataset.prev));
   });
 
-  // Add Feature (Step 3)
-  document.getElementById("btn-add-feature").addEventListener("click", () => {
-    const newFeat = {
-      id: `feat-${Date.now()}`,
-      title: "",
-      desc: ""
-    };
-    appState.features.push(newFeat);
-    saveToLocalStorage();
-    renderFeatures();
-    renderSteps();
-  });
-
-  // Add Step (Step 4)
+  // Add Step (Step 3)
   document.getElementById("btn-add-step").addEventListener("click", () => {
     const newStep = {
       id: `step-${Date.now()}`,
+      title: "",
       type: "전체",
-      gagne: GAGNE_EVENTS[0],
-      featureId: "",
-      experience: ""
+      teacherAct: "",
+      studentAct: "",
+      toolRole: ""
     };
     appState.steps.push(newStep);
     saveToLocalStorage();
@@ -525,9 +327,14 @@ function initEventListeners() {
 
   // Reset
   document.getElementById("btn-reset").addEventListener("click", () => {
-    if (confirm("모든 작성 내용을 통합사회 (시장 실패 vs 정부 개입 토론 도우미) 예시 데이터로 초기화하시겠습니까?")) {
-      applyPreset("debate");
+    if (confirm("모든 입력 내용을 초기화하시겠습니까?")) {
+      appState = JSON.parse(JSON.stringify(DEFAULT_STATE));
+      localStorage.removeItem("aiteacher_inperson_state");
+      loadFromLocalStorage();
+      renderSteps();
+      updateLiveSummary();
       switchWizardStep(1);
+      showToast("모든 작성 내용이 초기화되었습니다.");
     }
   });
 
@@ -558,21 +365,25 @@ function initEventListeners() {
 function generatePrompt() {
   saveToLocalStorage();
 
-  // Format Features Section (3단계)
-  const featuresFormatted = appState.features.map((ft, i) => {
-    return `- [기능 ${i+1}] ${ft.title}: ${ft.desc}`;
-  }).join("\n");
+  // Extract core features from tool roles across steps
+  const coreFeaturesList = appState.steps
+    .filter(st => st.toolRole && st.toolRole.trim() !== "")
+    .map((st, i) => `- [기능 ${i+1}] (${st.title || '단계 ' + (i+1)}) 도구 기능: ${st.toolRole}`)
+    .join("\n");
 
-  // Format Steps Section with Feature Linking (4단계)
+  const featuresSection = coreFeaturesList || "- [기능 1] 웹앱 인터랙션 및 데이터 처리 기능";
+
+  // Format Steps Section (4가지 요소 매핑)
   const stepsFormatted = appState.steps.map((st, i) => {
-    const linkedFeat = appState.features.find(f => f.id === st.featureId);
-    const featStr = linkedFeat ? ` | [연계 기능: ${linkedFeat.title}]` : '';
-    return `- [Step ${i+1}] ${st.type || '전체'}활동 | ${st.gagne}${featStr}\n  : ${st.experience}`;
-  }).join("\n");
+    return `- [Step ${i+1}] ${st.title || '단계명 미작성'} | [학습 형태: ${st.type || '전체'}활동]
+  * 교사 활동: ${st.teacherAct || '미작성'}
+  * 학생 활동: ${st.studentAct || '미작성'}
+  * 도구의 교육적 역할: ${st.toolRole || '미작성'}`;
+  }).join("\n\n");
 
-  // Check if AI API is mentioned/needed in features or steps
+  // Check if AI API is mentioned
   const allText = JSON.stringify(appState);
-  const needsAiApi = /AI|인공지능|Upstage|Solar|녹취|발문|요약|LLM/i.test(allText);
+  const needsAiApi = /AI|인공지능|Upstage|Solar|녹취|발문|요약|LLM|챗봇/i.test(allText);
 
   let apiReferenceBlock = "";
   if (needsAiApi) {
@@ -609,20 +420,20 @@ console.log(data.choices[0].message.content);
   const promptTemplate = `다음 명세서에 따라 구글 앱스스크립트(GAS) 기반 교육용 단일 페이지 웹앱(SPA)의 전체 코드를 작성해 줘. 프론트엔드(Index.html)와 백엔드(Code.gs) 코드를 모두 제공해 주어야 해.
 
 1. 배경 및 목표
-- 수업 주제(교과 및 단원): ${appState.topic}
-- 탐구 질문: ${appState.inquiry}
-- 성취기준 및 학습 목표: ${appState.standards}
-- 학습 대상: ${appState.target}
-- 디바이스 및 유의사항(학습 환경): ${appState.environment}
+- 수업 주제(교과 및 단원): ${appState.topic || '미작성'}
+- 탐구 질문: ${appState.inquiry || '미작성'}
+- 성취기준 및 학습 목표: ${appState.standards || '미작성'}
+- 학습 대상: ${appState.target || '미작성'}
+- 디바이스 및 유의사항(학습 환경): ${appState.environment || '미작성'}
 
 2. 사용자 분석
-- 수업 의도 및 학생 분석: ${appState.intent}
-- 디지털 도구로서 웹앱의 역할 및 핵심 목표: ${appState.goal}
+- 수업 의도 및 학생 분석: ${appState.intent || '미작성'}
+- 디지털 도구로서 웹앱의 역할 및 핵심 목표: ${appState.goal || '미작성'}
 
 3. 핵심 기능 정의
-${featuresFormatted}
+${featuresSection}
 
-4. 화면의 흐름 (가네의 9가지 수업 사태 & 핵심 기능 연계)
+4. 화면의 흐름 (수업 활동 및 도구의 역할 매핑)
 ${stepsFormatted}
 
 5. 참고자료
@@ -630,9 +441,9 @@ ${stepsFormatted}
 ${apiReferenceBlock}
 - 구글시트 데이터베이스 아키텍처:
   * 탭 1 명칭: [학습자_기록]
-    - 헤더 명칭: 타임스탬프, 학습자ID, 모둠번호, 성명, 선택입장, 최종성찰문, 접속디바이스
+    - 헤더 명칭: 타임스탬프, 학습자ID, 모둠번호, 성명, 현재단계, 최종제출내용, 접속디바이스
   * 탭 2 명칭: [실시간_반응데이터]
-    - 헤더 명칭: 타임스탬프, 모둠번호, 발언단계, 가네수업사태, 연계기능명, 학습자반응/입력내용, AI피드백/발문, 학생재응답
+    - 헤더 명칭: 타임스탬프, 모둠번호, 화면단계명, 학습형태, 교사활동, 학습자반응/입력, 도구역할피드백
 `;
 
   document.getElementById("output-prompt").value = promptTemplate;
@@ -646,19 +457,15 @@ async function generateWithUpstage() {
   const loadingEl = document.getElementById("prompt-loading");
   loadingEl.style.display = "flex";
 
-  // Build 1-4 step summary payload for Upstage AI Analysis
-  const featuresFormatted = appState.features.map((ft, i) => {
-    return `[기능 ${i+1}] 명칭: ${ft.title}\n  - 설명: ${ft.desc}`;
-  }).join("\n");
-
   const stepsFormatted = appState.steps.map((st, i) => {
-    const linkedFeat = appState.features.find(f => f.id === st.featureId);
-    const featStr = linkedFeat ? ` [연계기능: ${linkedFeat.title}]` : ' [연계기능 없음/단순기능]';
-    return `[Step ${i+1}] 활동형태: ${st.type || '전체'} | 가네사태: ${st.gagne}${featStr}\n  - 학습자 화면 및 경험: ${st.experience}`;
-  }).join("\n");
+    return `[Step ${i+1}] 화면단계명: ${st.title || '미작성'} | 학습형태: ${st.type || '전체'}활동
+  - 교사 활동: ${st.teacherAct || '미작성'}
+  - 학생 활동: ${st.studentAct || '미작성'}
+  - 도구의 교육적 역할 및 기능: ${st.toolRole || '미작성'}`;
+  }).join("\n\n");
 
   const analysisPayload = `
-[교수설계 명세서 (1~4단계 작성 내용)]
+[교수설계 명세서 작성 내용]
 1. 수업 주제(교과 및 단원): ${appState.topic}
 2. 탐구 질문: ${appState.inquiry}
 3. 성취기준: ${appState.standards}
@@ -667,10 +474,7 @@ async function generateWithUpstage() {
 6. 수업 의도 및 학생 분석: ${appState.intent}
 7. 디지털 도구로서 웹앱의 역할 및 핵심 목표: ${appState.goal}
 
-[3단계: 핵심 기능 목록]
-${featuresFormatted}
-
-[4단계: 학습자 관점 웹앱 단계 시나리오]
+[3단계: 웹앱 단계별 화면 설계 (교사활동 / 학생활동 / 도구역할)]
 ${stepsFormatted}
 `;
 
@@ -686,14 +490,15 @@ ${stepsFormatted}
         messages: [
           {
             role: "system",
-            content: `당신은 가네(Gagné) 수업 사태 기반 교수설계와 구글 앱스스크립트(GAS) 바이브코딩에 특화된 수석 AI 교육공학자입니다.
+            content: `당신은 차시 교수·학습 설계안 기반 구글 앱스스크립트(GAS) 바이브코딩에 특화된 수석 AI 교육공학자입니다.
 
-사용자가 작성한 1~4단계 교수설계 내역을 종합적으로 심층 분석하여, 
-1) 본 웹앱의 기능 중 외부 AI API (Upstage Solar LLM, 음성 요약, 심화 발문 등) 연동이 꼭 필요한지 여부를 판단하세요.
-2) 만약 AI API 연동이 필요하다면 Section 5(참고자료)에 Upstage Solar API 연동 코드 레퍼런스를 포함하고, 필요 없다면 일반 순수 HTML/GAS 아키텍처로 구성하세요.
-3) 반드시 사용자가 요구한 아래 5가지 목차 양식을 100% 엄격히 준수하여 Google AI Studio에 입력할 마스터 바이브코딩 프롬프트 전문만 출력해 주십시오.
+[엄격 지시사항]
+1. 절대 영문 사고 과정("The user asks...", "According to specification...")이나 서론/사족/설명을 출력하지 마십시오.
+2. 코드를 생성하지 마십시오. 반드시 'Google AI Studio에 입력할 프롬프트'만 생성해야 합니다.
+3. 교수설계 내용 중 음성 요약, LLM 발문, 맞춤 피드백 등 AI 기능이 필요한지 판단하여 Section 5(참고자료)에 Upstage Solar API 연동 코드를 포함할지 결정하십시오.
+4. 반드시 아래의 [5가지 목차 양식]을 100% 엄격히 준수하여 "다음 명세서에 따라 구글 앱스스크립트..." 로 시작하는 마스터 프롬프트 전문만 한국어로 출력하십시오.
 
-[필수 지정 목차 양식]
+[5가지 필수 목차 양식]
 다음 명세서에 따라 구글 앱스스크립트(GAS) 기반 교육용 단일 페이지 웹앱(SPA)의 전체 코드를 작성해 줘. 프론트엔드(Index.html)와 백엔드(Code.gs) 코드를 모두 제공해 주어야 해.
 
 1. 배경 및 목표
@@ -708,19 +513,19 @@ ${stepsFormatted}
 - 디지털 도구로서 웹앱의 역할 및 핵심 목표: ...
 
 3. 핵심 기능 정의
-(3단계 기능 목록 분석 반영)
+(3단계 도구의 역할 항목들을 종합 정리하여 작성)
 
-4. 화면의 흐름 (가네의 9가지 수업 사태 & 핵심 기능 연계)
-(4단계 시나리오 분석 반영)
+4. 화면의 흐름 (수업 활동 및 도구의 역할 매핑)
+(각 단계별 1. 화면단계명, 2. 학습형태, 3. 교사/학생활동, 4. 도구의 역할 4가지 요소 매핑하여 작성)
 
 5. 참고자료
 - 기술 스택 (Code.gs, HTML5, Vanilla JS, CSS)
-- AI API 연동 필요성 판단 결과 및 Upstage Solar API 레퍼런스 코드 (필요시 포함)
-- 구글시트 데이터베이스 아키텍처 (탭 및 헤더 구조)`
+- AI API 연동 필요성 판단 및 Upstage Solar API 레퍼런스 코드 (필요시 포함)
+- 구글시트 데이터베이스 아키텍처 (탭 1, 탭 2 및 헤더 구조)`
           },
           {
             role: "user",
-            content: `다음 교수설계 내역을 분석하여 마스터 프롬프트를 작성해줘:\n${analysisPayload}`
+            content: `다음 교수설계 내역을 바탕으로 5대 목차 양식의 한국어 마스터 프롬프트 전문만 출력해줘:\n${analysisPayload}`
           }
         ],
         stream: false
@@ -730,13 +535,20 @@ ${stepsFormatted}
     if (!response.ok) throw new Error(`API Error: ${response.status}`);
 
     const data = await response.json();
-    document.getElementById("output-prompt").value = data.choices[0].message.content;
+    let resultText = data.choices[0]?.message?.content || "";
+
+    // Sanitize: Remove any English thinking preambles if present
+    if (resultText.includes("다음 명세서에 따라")) {
+      resultText = resultText.substring(resultText.indexOf("다음 명세서에 따라"));
+    }
+
+    document.getElementById("output-prompt").value = resultText;
     showToast("Upstage Solar Pro가 교수설계를 종합 분석하여 맞춤형 프롬프트를 도출했습니다!");
 
   } catch (err) {
     console.error("Upstage API Error:", err);
-    generatePrompt(); // Fallback to local prompt generator
-    showToast("Upstage AI 분석 실패. 기본 생성 프롬프트를 표시합니다.");
+    generatePrompt();
+    showToast("Upstage AI 분석 실패. 기본 산출 프롬프트를 표시합니다.");
   } finally {
     loadingEl.style.display = "none";
   }
