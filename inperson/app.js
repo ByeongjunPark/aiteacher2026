@@ -1,6 +1,6 @@
 /**
  * AI Teacher 2026 - Inperson Prompt Generator Engine
- * Multi-Step Wizard Engine with LocalStorage & Upstage Solar Pro
+ * Split Layout & Live Accumulating Summary Board Engine
  */
 
 const GAGNE_EVENTS = [
@@ -20,29 +20,29 @@ const DEFAULT_STATE = {
   currentStep: 1,
   target: "초등학교 5학년 학생 (20명)",
   standards: "[6실05-02] 문제 해결 과정에서 조건에 따른 실생활 분기 구조를 이해하고 블록 코딩으로 구현한다.",
-  motivation: "퀴즈 기반 보상 시스템, 실황 애니메이션 시각 피드백, 도전 과제 점수판",
-  environment: "1인 1크롬북, 교실 무선 네트워크, 구글 계정 보유, 40분 1차시 수업 환경",
-  goal: "학습자가 주어진 조건(예: 온도/습도)을 조작해보며 실시간 결과 변화를 관찰하고, 직접 알고리즘 조건문의 동작 원리를 귀납적으로 탐구하도록 함",
+  motivation: "퀴즈 기반 보상 시스템, 실황 애니메이션 시각 피드백",
+  environment: "1인 1크롬북, 교실 무선 네트워크, 40분 1차시",
+  goal: "학습자가 주어진 조건(온도/습도)을 직접 조작해보며 실시간 결과 변화를 관찰하고, 조건문 분기 원리를 귀납적으로 탐구하도록 함",
   steps: [
     {
       id: "step-1",
       gagne: "1. 주의 집중시키기 (Gain attention)",
-      experience: "스마트홈 온도 센서 인터랙티브 시뮬레이션으로 흥미를 자극하고 실생활 문제를 제시함"
+      experience: "스마트홈 온도 센서 시뮬레이션으로 흥미를 자극하고 실생활 문제 제시"
     },
     {
       id: "step-2",
       gagne: "5. 학습 안내 제시하기 (Provide learning guidance)",
-      experience: "슬라이더로 온도를 조절할 때 에어컨이 켜지는 '만약 ~라면' 조건문 카드를 시각적으로 맞춰보게 가이드함"
+      experience: "슬라이더 조절 시 에어컨이 켜지는 '만약 ~라면' 조건문 시각 카드로 안내"
     },
     {
       id: "step-3",
       gagne: "6. 수행을 유도하기 (Elicit performance)",
-      experience: "3가지 미션(자동문, 에어컨, 가로등) 상황에 맞는 조건을 직접 작성해보고 [실행하기] 버튼을 누름"
+      experience: "3가지 미션(자동문, 에어컨, 가로등) 상황의 조건을 직접 세팅해보는 미션 수행"
     },
     {
       id: "step-4",
       gagne: "7. 피드백 제공하기 (Provide feedback)",
-      experience: "성공 시 축하 폭죽 애니메이션과 뱃지 지급, 실패 시 힌트 말풍선(선택지 재제시)을 띄워줌"
+      experience: "성공 시 폭죽 애니메이션/뱃지, 실패 시 힌트 말풍선 제공"
     }
   ],
   apiKey: ""
@@ -54,6 +54,7 @@ document.addEventListener("DOMContentLoaded", () => {
   loadFromLocalStorage();
   initEventListeners();
   renderSteps();
+  updateLiveSummary();
   switchWizardStep(appState.currentStep || 1);
 });
 
@@ -84,72 +85,109 @@ function saveToLocalStorage() {
   appState.apiKey = document.getElementById("input-api-key").value;
 
   localStorage.setItem("aiteacher_inperson_state", JSON.stringify(appState));
+  updateLiveSummary();
 }
 
-// Wizard Step Switcher
+// Switch Left View Step & Highlight Arrow
 function switchWizardStep(stepNum) {
   appState.currentStep = parseInt(stepNum);
   saveToLocalStorage();
 
-  // Hide all step views
-  document.querySelectorAll(".wizard-step-view").forEach(view => {
+  // Hide input views
+  document.querySelectorAll(".step-input-view").forEach(view => {
     view.classList.remove("active");
   });
 
-  // Show target view
-  const targetView = document.getElementById(`view-step-${stepNum}`);
-  if (targetView) {
-    targetView.classList.add("active");
-  }
+  // Show active view
+  const targetView = document.getElementById(`input-view-${stepNum}`);
+  if (targetView) targetView.classList.add("active");
 
-  // Update Progress Indicator Nodes
-  const nodes = document.querySelectorAll(".step-node");
-  nodes.forEach(node => {
-    const nodeStep = parseInt(node.dataset.stepTarget);
-    node.classList.remove("active", "completed");
-    if (nodeStep === appState.currentStep) {
-      node.classList.add("active");
-    } else if (nodeStep < appState.currentStep) {
-      node.classList.add("completed");
+  // Update Arrow Stepper
+  const arrows = document.querySelectorAll(".step-arrow");
+  arrows.forEach(arr => {
+    const s = parseInt(arr.dataset.step);
+    arr.classList.remove("active", "completed");
+    if (s === appState.currentStep) {
+      arr.classList.add("active");
+    } else if (s < appState.currentStep) {
+      arr.classList.add("completed");
     }
   });
 
-  // Update Progress Track Bar
-  const progressPercent = ((appState.currentStep - 1) / 3) * 100;
-  document.getElementById("progress-fill").style.width = `${progressPercent}%`;
+  // Highlight Right Accumulate Card
+  document.querySelectorAll(".accum-card").forEach(card => card.classList.remove("highlight"));
+  const targetCard = document.getElementById(`accum-card-${stepNum}`);
+  if (targetCard) targetCard.classList.add("highlight");
 
-  // Auto generate if arriving at Step 4
   if (appState.currentStep === 4 && !document.getElementById("output-prompt").value) {
     generatePrompt();
   }
+}
 
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+// Update Live Summary Board on Right Panel
+function updateLiveSummary() {
+  // Step 1
+  const targetEl = document.getElementById("summary-target");
+  const stdEl = document.getElementById("summary-standards");
+  const motEl = document.getElementById("summary-motivation");
+  const envEl = document.getElementById("summary-environment");
+
+  targetEl.innerText = appState.target || "미입력";
+  targetEl.className = appState.target ? "" : "empty-txt";
+
+  stdEl.innerText = appState.standards || "미입력";
+  stdEl.className = appState.standards ? "" : "empty-txt";
+
+  motEl.innerText = appState.motivation || "미입력";
+  motEl.className = appState.motivation ? "" : "empty-txt";
+
+  envEl.innerText = appState.environment || "미입력";
+  envEl.className = appState.environment ? "" : "empty-txt";
+
+  // Step 2
+  const goalEl = document.getElementById("summary-goal");
+  goalEl.innerText = appState.goal || "미입력";
+  goalEl.className = appState.goal ? "" : "empty-txt";
+
+  // Step 3
+  document.getElementById("summary-step-count").innerText = appState.steps.length;
+  const treeContainer = document.getElementById("summary-steps-list");
+  treeContainer.innerHTML = "";
+
+  if (appState.steps.length === 0) {
+    treeContainer.innerHTML = `<span class="empty-txt">등록된 단계가 없습니다.</span>`;
+  } else {
+    appState.steps.forEach((st, idx) => {
+      const node = document.createElement("div");
+      node.className = "tree-step-node";
+      node.innerHTML = `
+        <div class="tree-step-title">단계 ${idx + 1}: ${st.gagne}</div>
+        <div>${st.experience || '(경험 내용 미작성)'}</div>
+      `;
+      treeContainer.appendChild(node);
+    });
+  }
 }
 
 function initEventListeners() {
-  // Input Auto-save
   const inputs = document.querySelectorAll("input, textarea");
   inputs.forEach(input => {
     input.addEventListener("input", saveToLocalStorage);
   });
 
-  // Wizard Step Navigation Click Handlers
-  document.querySelectorAll(".step-node").forEach(node => {
-    node.addEventListener("click", () => {
-      switchWizardStep(node.dataset.stepTarget);
+  // Arrow Stepper Clicks
+  document.querySelectorAll(".step-arrow").forEach(arr => {
+    arr.addEventListener("click", () => {
+      switchWizardStep(arr.dataset.step);
     });
   });
 
-  document.querySelectorAll(".btn-next-step").forEach(btn => {
-    btn.addEventListener("click", () => {
-      switchWizardStep(btn.dataset.next);
-    });
+  // Next / Prev Buttons
+  document.querySelectorAll(".btn-next").forEach(btn => {
+    btn.addEventListener("click", () => switchWizardStep(btn.dataset.next));
   });
-
-  document.querySelectorAll(".btn-prev-step").forEach(btn => {
-    btn.addEventListener("click", () => {
-      switchWizardStep(btn.dataset.prev);
-    });
+  document.querySelectorAll(".btn-prev").forEach(btn => {
+    btn.addEventListener("click", () => switchWizardStep(btn.dataset.prev));
   });
 
   // Add Step
@@ -166,60 +204,38 @@ function initEventListeners() {
 
   // Reset
   document.getElementById("btn-reset").addEventListener("click", () => {
-    if (confirm("모든 입력 내역을 초기 상태로 리셋하시겠습니까?")) {
+    if (confirm("모든 작성 내용을 초기화하시겠습니까?")) {
       appState = JSON.parse(JSON.stringify(DEFAULT_STATE));
       localStorage.removeItem("aiteacher_inperson_state");
       loadFromLocalStorage();
       renderSteps();
+      updateLiveSummary();
       switchWizardStep(1);
-      showToast("모든 데이터가 초기화되었습니다.");
+      showToast("데이터가 초기화되었습니다.");
     }
   });
 
-  // Generate Buttons
-  document.getElementById("btn-generate").addEventListener("click", () => {
-    generatePrompt();
-  });
-
-  document.getElementById("btn-generate-upstage").addEventListener("click", () => {
-    generateWithUpstage();
-  });
+  // Prompt Gens
+  document.getElementById("btn-generate").addEventListener("click", generatePrompt);
+  document.getElementById("btn-generate-upstage").addEventListener("click", generateWithUpstage);
 
   // Copy Prompt
   document.getElementById("btn-copy-prompt").addEventListener("click", () => {
     const promptText = document.getElementById("output-prompt").value;
-    if (!promptText) {
-      showToast("복사할 프롬프트가 없습니다.");
-      return;
-    }
+    if (!promptText) { showToast("복사할 프롬프트가 없습니다."); return; }
     navigator.clipboard.writeText(promptText).then(() => {
-      showToast("프롬프트가 복사되었습니다! Google AI Studio로 이동해 붙여넣으세요.");
+      showToast("프롬프트가 복사되었습니다! Google AI Studio에 붙여넣으세요.");
     });
   });
 
-  // Upstage API Modal
+  // Upstage Modal
   const modal = document.getElementById("modal-api");
-  document.getElementById("btn-api-modal").addEventListener("click", () => {
-    modal.style.display = "flex";
-  });
-  document.getElementById("btn-close-modal").addEventListener("click", () => {
-    modal.style.display = "none";
-  });
+  document.getElementById("btn-api-modal").addEventListener("click", () => modal.style.display = "flex");
+  document.getElementById("btn-close-modal").addEventListener("click", () => modal.style.display = "none");
   document.getElementById("btn-save-api-key").addEventListener("click", () => {
     saveToLocalStorage();
     modal.style.display = "none";
     showToast("Upstage API Key가 저장되었습니다.");
-  });
-
-  // Tabs
-  const tabBtns = document.querySelectorAll(".tab-btn");
-  tabBtns.forEach(btn => {
-    btn.addEventListener("click", () => {
-      tabBtns.forEach(b => b.classList.remove("active"));
-      document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
-      btn.classList.add("active");
-      document.getElementById(btn.dataset.tab).classList.add("active");
-    });
   });
 }
 
@@ -256,8 +272,8 @@ function renderSteps() {
       </div>
 
       <div class="form-group">
-        <label><i class="fa-solid fa-pen-nib"></i> 유도하는 학습 경험 및 상호작용</label>
-        <textarea rows="2" class="experience-input" data-index="${index}" placeholder="이 단계에서 학습자가 경험할 화면, 인터랙션, 반응을 구체적으로 쓰세요.">${step.experience || ''}</textarea>
+        <label><i class="fa-solid fa-pen-nib"></i> 유도 학습 경험</label>
+        <textarea rows="2" class="experience-input" data-index="${index}" placeholder="이 단계에서 학습자가 경험할 화면, 인터랙션을 쓰세요.">${step.experience || ''}</textarea>
       </div>
     `;
 
@@ -288,19 +304,16 @@ function renderSteps() {
 }
 
 let dragSrcIndex = null;
-
 function handleDragStart(e) {
   dragSrcIndex = parseInt(this.dataset.index);
   this.classList.add("dragging");
   e.dataTransfer.effectAllowed = "move";
 }
-
 function handleDragOver(e) {
-  if (e.preventDefault) { e.preventDefault(); }
+  if (e.preventDefault) e.preventDefault();
   e.dataTransfer.dropEffect = "move";
   return false;
 }
-
 function handleDrop(e) {
   e.stopPropagation();
   const dropTargetIndex = parseInt(this.dataset.index);
@@ -313,10 +326,7 @@ function handleDrop(e) {
   }
   return false;
 }
-
-function handleDragEnd() {
-  this.classList.remove("dragging");
-}
+function handleDragEnd() { this.classList.remove("dragging"); }
 
 function generatePrompt() {
   saveToLocalStorage();
@@ -324,7 +334,7 @@ function generatePrompt() {
   const stepsFormatted = appState.steps.map((st, i) => {
     return `[단계 ${i+1}]
 - 가네 수업 사태: ${st.gagne}
-- 학습 경험 및 구체적 구현 요청: ${st.experience}`;
+- 유도 학습 경험 및 구체적 구현 요칭: ${st.experience}`;
   }).join("\n\n");
 
   const promptTemplate = `당신은 구글 앱스스크립트(Google Apps Script, GAS) 기반 교육용 웹 어플리케이션 제작에 최고의 전문성을 가진 시니어 바이브코딩(Vibe Coding) 프롬프트 엔지니어이자 교육공학자입니다.
@@ -367,7 +377,7 @@ ${stepsFormatted}
 위 아키텍처를 토대로 AI가 코드를 즉시 작성할 수 있도록 명확하고 체계적인 마스터 바이브코딩 프롬프트를 제시해 주십시오.`;
 
   document.getElementById("output-prompt").value = promptTemplate;
-  showToast("체계적 교수설계 바이브코딩 프롬프트가 산출되었습니다!");
+  showToast("프롬프트가 성공적으로 산출되었습니다!");
 }
 
 async function generateWithUpstage() {
@@ -403,14 +413,10 @@ async function generateWithUpstage() {
       })
     });
 
-    if (!response.ok) {
-      throw new Error(`API Error: ${response.status}`);
-    }
+    if (!response.ok) throw new Error(`API Error: ${response.status}`);
 
     const data = await response.json();
-    const refinedPrompt = data.choices[0].message.content;
-
-    document.getElementById("output-prompt").value = refinedPrompt;
+    document.getElementById("output-prompt").value = data.choices[0].message.content;
     showToast("Upstage Solar Pro가 프롬프트를 성공적으로 다듬었습니다!");
 
   } catch (err) {
@@ -425,7 +431,5 @@ function showToast(msg) {
   const toast = document.getElementById("toast");
   toast.innerText = msg;
   toast.classList.add("show");
-  setTimeout(() => {
-    toast.classList.remove("show");
-  }, 3500);
+  setTimeout(() => toast.classList.remove("show"), 3500);
 }
