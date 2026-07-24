@@ -48,6 +48,10 @@ function loadFromLocalStorage() {
     }
   }
 
+  if (!appState.apiKey) {
+    appState.apiKey = "up_jskRfswj0ZmfhlfDvjyVBSY81iuh2";
+  }
+
   document.getElementById("input-topic").value = appState.topic || "";
   document.getElementById("input-inquiry").value = appState.inquiry || "";
   document.getElementById("input-target").value = appState.target || "";
@@ -55,7 +59,7 @@ function loadFromLocalStorage() {
   document.getElementById("input-intent").value = appState.intent || "";
   document.getElementById("input-environment").value = appState.environment || "";
   document.getElementById("input-goal").value = appState.goal || "";
-  document.getElementById("input-api-key").value = appState.apiKey || "";
+  document.getElementById("input-api-key").value = appState.apiKey;
 }
 
 function saveToLocalStorage() {
