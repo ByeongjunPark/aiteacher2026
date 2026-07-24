@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="styles.css?v=3">
+  <link rel="stylesheet" href="styles.css?v=4">
 </head>
 <body>
 
@@ -75,30 +75,38 @@
             <p>지도안의 교과, 단원, 탐구질문, 대상 및 학습 환경을 입력하세요.</p>
           </div>
 
+          <!-- Preset Selection Chips Bar -->
+          <div class="preset-selector-bar" style="display: flex; gap: 6px; margin-bottom: 0.9rem; align-items: center; flex-wrap: wrap;">
+            <span style="font-size: 0.78rem; font-weight: 700; color: var(--accent-cyan); display: flex; align-items: center; gap: 4px;"><i class="fa-solid fa-lightbulb"></i> 지도안 예시 템플릿:</span>
+            <button id="preset-btn-debate" class="preset-chip active"><i class="fa-solid fa-comments"></i> 예시1: 시장실패 토론 도우미</button>
+            <button id="preset-btn-cost" class="preset-chip"><i class="fa-solid fa-calculator"></i> 예시2: 기회비용 계산기</button>
+            <button id="preset-btn-env" class="preset-chip"><i class="fa-solid fa-leaf"></i> 예시3: 환경 정책 시뮬레이터</button>
+          </div>
+
           <div class="form-body">
             <div class="form-group">
               <label for="input-topic"><i class="fa-solid fa-book"></i> 수업 주제(교과 및 단원)</label>
-              <input type="text" id="input-topic" placeholder="예: 사회 5학년 2학기 1. 체계적 경제 활동과 합리적 선택 (3차시)">
+              <input type="text" id="input-topic" placeholder="예: 통합사회2-(3) 시장경제와 지속가능 발전 - 시장 실패와 정부의 경제적 개입">
             </div>
 
             <div class="form-group">
               <label for="input-inquiry"><i class="fa-solid fa-circle-question"></i> 탐구 질문</label>
-              <input type="text" id="input-inquiry" placeholder="예: 한정된 예산 속에서 최선의 만족을 얻는 '합리적 선택'은 어떻게 할까?">
+              <input type="text" id="input-inquiry" placeholder="예: 보이지 않는 손은 왜 종종 실패할까? 정부의 경제적 개입은 어느 정도가 적절할까?">
             </div>
 
             <div class="form-group">
               <label for="input-target"><i class="fa-solid fa-user-graduate"></i> 학습 대상</label>
-              <input type="text" id="input-target" placeholder="예: 초등학교 5학년 2반 (22명)">
+              <input type="text" id="input-target" placeholder="예: 고등학교 1학년 학생 (창원여고, 24명)">
             </div>
 
             <div class="form-group">
               <label for="input-standards"><i class="fa-solid fa-bullseye"></i> 성취기준 / 학습 목표</label>
-              <textarea id="input-standards" rows="2" placeholder="예: [5사04-01] 자원의 희소성으로 인해 선택의 문제가 발생함을 이해하고, 일상생활에서 합리적으로 선택하는 방법을 탐구한다."></textarea>
+              <textarea id="input-standards" rows="2" placeholder="예: [10통사2-03-01] 시장과 정부의 관계를 중심으로 다양한 삶의 방식을 비교 평가한다."></textarea>
             </div>
 
             <div class="form-group">
               <label for="input-environment"><i class="fa-solid fa-laptop-code"></i> 디바이스 및 유의사항 (학습 환경)</label>
-              <input type="text" id="input-environment" placeholder="예: 1인 1디바이스(크롬북/태블릿), 무선 AP, 구글 클래스룸 연동">
+              <input type="text" id="input-environment" placeholder="예: 1인 1디바이스(크롬북/태블릿), 무선 AP, 음성 마이크, GAS 백엔드">
             </div>
           </div>
 
@@ -119,12 +127,12 @@
           <div class="form-body">
             <div class="form-group">
               <label for="input-intent"><i class="fa-solid fa-lightbulb"></i> 수업 의도 및 학생 분석</label>
-              <textarea id="input-intent" rows="3" placeholder="예: 학생들이 용돈 관리 시 기회비용 개념을 어려워하므로, 직접 가상 선택을 해보며 기회비용과 만족도를 실시간으로 비교·평가하는 모의시뮬레이션 경험을 제공하고자 함."></textarea>
+              <textarea id="input-intent" rows="3" placeholder="예: 시장 실패와 정부 개입 개념을 어려워하므로 실시간 음성 요약과 AI 심화 발문을 통해 비판적 사고력을 신장시킴"></textarea>
             </div>
 
             <div class="form-group">
               <label for="input-goal" class="gold-label"><i class="fa-solid fa-rocket"></i> 디지털 도구로서 웹앱의 역할 및 핵심 목표</label>
-              <textarea id="input-goal" rows="4" placeholder="예: 가상 예산 안에서 다양한 선택지의 기회비용과 이익을 시뮬레이션하고, 선택 결과에 따른 합리성 피드백을 통해 올바른 의사결정 능력을 함양하는 사회과 학습용 웹앱"></textarea>
+              <textarea id="input-goal" rows="4" placeholder="예: 찬반 토론 내용을 실시간 요약하고 Upstage AI 심화 발문을 제시하는 토론 수업 지원 웹앱"></textarea>
             </div>
           </div>
 
@@ -134,7 +142,7 @@
           </div>
         </div>
 
-        <!-- Step 3 Input (NEW: Core Feature Definition) -->
+        <!-- Step 3 Input (Core Feature Definition) -->
         <div class="step-input-view" id="input-view-3">
           <div class="panel-header">
             <div class="header-flex">
@@ -274,7 +282,7 @@
             </div>
           </div>
 
-          <!-- Accumulated Step 3 (NEW: Core Features) -->
+          <!-- Accumulated Step 3 (Core Features) -->
           <div class="accum-card" id="accum-card-3">
             <div class="accum-card-title">
               <span class="accum-num purple">3</span>
@@ -341,6 +349,6 @@
 
   <div id="toast" class="toast-notification"></div>
 
-  <script src="app.js?v=3"></script>
+  <script src="app.js?v=4"></script>
 </body>
 </html>

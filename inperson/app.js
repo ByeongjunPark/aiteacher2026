@@ -1,6 +1,6 @@
 /**
  * AI Teacher 2026 - Inperson Prompt Generator Engine
- * 5-Step Wizard Engine with Upstage API Integration & High School Debate Assistant (Market Failure vs Govt Intervention)
+ * 5-Step Wizard Engine with Social Studies Presets & Upstage API Integration
  */
 
 const GAGNE_EVENTS = [
@@ -16,81 +16,79 @@ const GAGNE_EVENTS = [
   "9. 파지와 전이 촉진하기 (Enhance retention and transfer)"
 ];
 
+// Presets Collection for Social Studies
+const LESSON_PRESETS = {
+  debate: {
+    topic: "고등학교 1학년 통합사회2-(3) 시장경제와 지속가능 발전 - 시장 실패와 정부의 경제적 개입",
+    inquiry: "보이지 않는 손은 왜 종종 실패할까? 시장 실패에 대한 정부의 경제적 개입은 어느 정도의 선이 적절할까?",
+    target: "고등학교 1학년 학생 (창원여고, 24명)",
+    standards: "[10통사2-03-01] 자본주의의 역사적 전개 과정과 특징을 조사하고, 시장과 정부의 관계를 중심으로 다양한 삶의 방식을 비교 평가한다.\n[10통사2-03-02] 합리적 선택의 의미와 한계를 파악하고, 지속가능발전을 위해 요청되는 정부의 역할과 책임을 탐구한다.",
+    environment: "1인 1디바이스(크롬북/태블릿), 무선 AP, 음성 녹음 마이크, Google Apps Script 백엔드",
+    intent: "시장 실패(공공재, 독과점, 외부효과)와 정부 개입(규제, 보조금)에 대한 거시 경제 개념을 어려워하므로, 논쟁 토론 중 실시간 음성/텍스트 입력을 통해 입장을 정리해주고 AI 심화 발문을 제공하여 비판적·분석적 사고 역량을 신장시키고자 함.",
+    goal: "모둠별 찬반 토론 내용을 실시간 요약·정리하고, 토론 흐름을 분석하여 비판적 사고를 자극하는 AI 심화 발문과 입장 비교 리포트를 자동 생성해주는 AI 토론수업 도우미 웹앱",
+    features: [
+      { id: "feat-1", title: "토론 음성 녹취 & 입장별 핵심 주장 실시간 요약", desc: "모둠 토론 음성/텍스트를 받아서 정부 개입 찬성 vs 반대 입장별 핵심 주장과 근거를 실시간 항목별로 자동 요약해 주는 기능" },
+      { id: "feat-2", title: "Upstage Solar-Pro3 연동 AI 심화 발문 생성기", desc: "토론의 논리적 맹점을 AI(Upstage API)가 분석하여 비판적 사고를 촉진하는 맞춤형 반론 및 심화 질문을 제시해 주는 기능" },
+      { id: "feat-3", title: "시장 실패 vs 정부 실패 찬반 대립 논거 비교 대시보드", desc: "공공재, 외부효과, 독과점 사례별로 학생들의 찬반 논거를 시각적 매트릭스로 비교 분석해 주는 기능" },
+      { id: "feat-4", title: "구글 시트 연동 토론 성찰 리포트 & 학급 공유 보드", desc: "모둠별 토론 기록, AI 심화 발문 응답, 성찰문을 구글 시트 DB에 저장하고 공유하는 백엔드 연동 기능" }
+    ],
+    steps: [
+      { id: "step-1", type: "전체", gagne: "1. 주의 집중시키기 (Gain attention)", featureId: "feat-1", experience: "환경오염(외부효과) 사례 카드 제시 후 '정부가 어디까지 개입해야 하는가?' 딜레마 문제 상기" },
+      { id: "step-2", type: "모둠", gagne: "6. 수행을 유도하기 (Elicit performance)", featureId: "feat-1", experience: "모둠별 찬반 토론 수행 시 음성 녹취 기능으로 발언을 기록하고 입장별 주요 근거 자동 요약 카드 확인" },
+      { id: "step-3", type: "모둠", gagne: "7. 피드백 제공하기 (Provide feedback)", featureId: "feat-2", experience: "요약된 논거를 바탕으로 Upstage Solar AI가 생성한 '정부 실패의 부작용은 어떻게 극복할 것인가?' 등의 심화 발문 피드백에 대해 모둠 재토론 진행" },
+      { id: "step-4", type: "개별", gagne: "8. 수행 기반 평가 실시하기 (Assess performance)", featureId: "feat-3", experience: "찬반 대립 논거 비교 대시보드에서 자신의 초기 입장과 최종 입장의 변화를 비교하고 합리적 개입선에 대한 성찰문 작성" },
+      { id: "step-5", type: "전체", gagne: "9. 파지와 전이 촉진하기 (Enhance retention and transfer)", featureId: "feat-4", experience: "구글 시트 연동 학급 전체 토론 대시보드를 공유하며 시장과 정부의 조화로운 균형에 대한 최종 1줄 소감 제출" }
+    ]
+  },
+
+  cost: {
+    topic: "통합사회2-(3) 시장경제와 지속가능 발전 - 명시적 비용과 암묵적 비용을 고려한 합리적 선택",
+    inquiry: "내가 오늘 내린 선택은 정말 공짜 선택이었을까? 내 선택의 편익과 기회비용은 무엇일까?",
+    target: "고등학교 1학년 학생 (창원여고, 24명)",
+    standards: "[10통사2-03-02] 합리적 선택의 의미와 한계를 파악하고, 지속가능발전을 위해 요청되는 각 주체의 역할과 책임을 탐구한다.",
+    environment: "1인 1디바이스(크롬북/태블릿), 무선 AP, Google Apps Script 백엔드",
+    intent: "기회비용(명시적 비용 + 암묵적 비용) 계산의 복잡함을 시뮬레이터 조작을 통해 직관적으로 체험하고 합리적 의사결정을 유도함.",
+    goal: "대안별 편익, 명시적 비용, 암묵적 비용을 실시간 계산하고, 조건 변화에 따른 순이익 그래프를 시각화해 주는 경제 실습 시뮬레이터",
+    features: [
+      { id: "feat-1", title: "명시적 비용 + 암묵적 비용 실시간 기회비용 계산기", desc: "각 대안을 선택할 때 지출되는 명시적 비용과 포기한 대안의 가치(암묵적 비용)를 합산하여 기회비용을 산출하는 라이브 계산기" },
+      { id: "feat-2", title: "대안별 순이익 비교 및 합리적 선택 시각화 그래프", desc: "순이익(편익 - 기회비용)이 0보다 큰 대안을 자동으로 판별하고 막대그래프로 최선의 선택을 시각화해 주는 기능" },
+      { id: "feat-3", title: "용돈 및 예산 제약 조건 동적 조작 시뮬레이터", desc: "예산 제약 조건을 슬라이더로 조작하며 선택 대안의 변화를 실시간 관찰하는 기능" },
+      { id: "feat-4", title: "구글 시트 연동 개별 기회비용 계산 성찰 리포트", desc: "학생별 계산 결과와 선택 이유를 구글 시트 DB에 제출하는 기능" }
+    ],
+    steps: [
+      { id: "step-1", type: "전체", gagne: "1. 주의 집중시키기 (Gain attention)", featureId: "feat-1", experience: "영화 관람 vs 동아리 활동 선택 시 포기한 시간과 비용 딜레마 사례 제시" },
+      { id: "step-2", type: "개별", gagne: "5. 학습 안내 제시하기 (Provide learning guidance)", featureId: "feat-1", experience: "대안 선택 시 명시적 비용과 포기한 대안 중 최대 가치가 라이브로 계산되는 인터페이스 탐색" },
+      { id: "step-3", type: "개별", gagne: "6. 수행을 유도하기 (Elicit performance)", featureId: "feat-2", experience: "3가지 용돈 지출 미션 상황에서 순이익이 가장 큰 합리적 선택을 판단하는 알고리즘 미션 수행" },
+      { id: "step-4", type: "전체", gagne: "9. 파지와 전이 촉진하기 (Enhance retention and transfer)", featureId: "feat-4", experience: "자신의 실제 기회비용 일기와 합리적 소비 결심을 구글 시트 DB에 제출하여 공유" }
+    ]
+  },
+
+  env: {
+    topic: "통합사회2-(3) 시장경제와 지속가능 발전 - 외부 불경제와 지속가능한 환경 정책",
+    inquiry: "공장 환경오염(외부 불경제) 문제, 정부의 피구세(세금) 부과와 탄소배출권 거래제 중 무엇이 더 효과적일까?",
+    target: "고등학교 1학년 학생 (창원여고, 24명)",
+    standards: "[10통사2-03-02] 지속가능발전을 위해 요청되는 정부, 기업가, 노동자, 소비자의 바람직한 역할과 책임을 탐구한다.",
+    environment: "1인 1디바이스(크롬북/태블릿), 무선 AP, Google Apps Script 백엔드",
+    intent: "외부 불경제로 인한 시장 실패 상황에서 피구세와 탄소배출권 시장의 작동 원리를 모의 시뮬레이션을 통해 직접 비교 탐구함.",
+    goal: "기업과 정부 입장에서 환경 세금율과 배출권 가격을 조작해보며 오염물질 감축 효과와 경제적 영향을 모의 실험하는 정책 시뮬레이터",
+    features: [
+      { id: "feat-1", title: "외부 불경제 오염물질 배출량 및 사회적 비용 실시간 시뮬레이터", desc: "기업 생산량에 따른 오염물질 배출량과 사회적 피해 비용을 계산해 주는 시뮬레이션 기능" },
+      { id: "feat-2", title: "정부 정책 수단(피구세 부과 vs 탄소배출권 거래) 모의 실험기", desc: "세금 세율과 배출권 공급량을 조작하여 기업의 감축 유인 반응을 비교 테스트하는 기능" },
+      { id: "feat-3", title: "기업/소비자/정부 3자 편익 및 지속가능성 시각 차트", desc: "정책 적용 후 3개 주체의 경제적 편익과 총 오염 감축량을 대시보드로 시각화해 주는 기능" },
+      { id: "feat-4", title: "구글 시트 연동 지속가능한 환경 정책 소감문 공유 보드", desc: "자신이 제안한 최적의 환경 정책안을 구글 시트 DB에 제출하고 학급 투표에 참여하는 기능" }
+    ],
+    steps: [
+      { id: "step-1", type: "전체", gagne: "1. 주의 집중시키기 (Gain attention)", featureId: "feat-1", experience: "공장 매연으로 인한 주민 피해(외부 불경제) 뉴스 영상 제시 및 문제 제기" },
+      { id: "step-2", type: "모둠", gagne: "6. 수행을 유도하기 (Elicit performance)", featureId: "feat-2", experience: "모둠별로 '세금 부과안'과 '배출권 거래안' 시뮬레이터를 조작하며 기업 생산 반응 테스트" },
+      { id: "step-3", type: "모둠", gagne: "7. 피드백 제공하기 (Provide feedback)", featureId: "feat-3", experience: "3자 편익 그래프를 통해 세금 부과 vs 배출권 거래 중 사회적 효율성이 높은 정책 선택" },
+      { id: "step-4", type: "전체", gagne: "9. 파지와 전이 촉진하기 (Enhance retention and transfer)", featureId: "feat-4", experience: "우리 모둠이 제안하는 바람직한 정부와 기업의 역할 정책 소감문을 구글 시트에 제출" }
+    ]
+  }
+};
+
 const DEFAULT_STATE = {
   currentStep: 1,
-  // 1단계: 수업 배경 및 기본 정보 (창원여고 박병준 교사 지도안 연동)
-  topic: "고등학교 1학년 통합사회2-(3) 시장경제와 지속가능 발전 - 시장 실패와 정부의 경제적 개입",
-  inquiry: "보이지 않는 손은 왜 종종 실패할까? 시장 실패에 대한 정부의 경제적 개입은 어느 정도의 선이 적절할까?",
-  target: "고등학교 1학년 학생 (창원여고, 24명)",
-  standards: "[10통사2-03-01] 자본주의의 역사적 전개 과정과 특징을 조사하고, 시장과 정부의 관계를 중심으로 다양한 삶의 방식을 비교 평가한다.\n[10통사2-03-02] 합리적 선택의 의미와 한계를 파악하고, 지속가능발전을 위해 요청되는 정부의 역할과 책임을 탐구한다.",
-  environment: "1인 1디바이스(크롬북/태블릿), 무선 AP, 음성 녹음 마이크, Google Apps Script 백엔드",
-
-  // 2단계: 앱 도입 의도 및 학습 경험 목표
-  intent: "시장 실패(공공재, 독과점, 외부효과)와 정부 개입(규제, 보조금)에 대한 거시 경제 개념을 어려워하므로, 논쟁 토론 중 실시간 음성/텍스트 입력을 통해 입장을 정리해주고 AI 심화 발문을 제공하여 비판적·분석적 사고 역량을 신장시키고자 함.",
-  goal: "모둠별 찬반 토론 내용을 실시간 요약·정리하고, 토론 흐름을 분석하여 비판적 사고를 자극하는 AI 심화 발문과 입장 비교 리포트를 자동 생성해주는 AI 토론수업 도우미 웹앱",
-
-  // 3단계: 웹앱 핵심 기능 정의 (토론 수업 도우미 기능)
-  features: [
-    {
-      id: "feat-1",
-      title: "토론 음성 녹취 & 입장별 핵심 주장 실시간 요약",
-      desc: "모둠 토론 음성(또는 텍스트)을 입력받아 정부 개입 찬성(시장 실패 보완) vs 반대(정부 실패/자율성) 입장별 핵심 주장과 근거를 실시간 항목별로 자동 요약해 주는 기능"
-    },
-    {
-      id: "feat-2",
-      title: "Upstage Solar-Pro3 연동 AI 심화 발문 생성기",
-      desc: "토론의 맹점과 논리적 허점을 AI(Upstage API)가 분석하여, 비판적 사고를 촉진하는 맞춤형 반론 및 심화 탐구 질문을 실시간 제시해 주는 기능"
-    },
-    {
-      id: "feat-3",
-      title: "시장 실패 vs 정부 실패 찬반 대립 논거 비교 대시보드",
-      desc: "공공재, 외부효과, 독과점 사례별로 학생들이 제시한 찬반 논거를 시각적 매트릭스로 비교 분석하고 토론 균형도를 나타내 주는 기능"
-    },
-    {
-      id: "feat-4",
-      title: "구글 시트 연동 토론 성찰 리포트 & 학급 공유 보드",
-      desc: "모둠별 토론 기록, AI 심화 발문에 대한 답변, 최종 입장 성찰문을 구글 시트 DB에 저장하고 학급 전체 대시보드로 공유하는 백엔드 연동 기능"
-    }
-  ],
-
-  // 4단계: 학습자 관점 웹앱 단계 설계 (3단계 핵심 기능 연계)
-  steps: [
-    {
-      id: "step-1",
-      type: "전체",
-      gagne: "1. 주의 집중시키기 (Gain attention)",
-      featureId: "feat-1",
-      experience: "환경오염(외부효과) 사례 카드 제시 후 '정부가 어디까지 개입해야 하는가?' 딜레마 문제 상기"
-    },
-    {
-      id: "step-2",
-      type: "모둠",
-      gagne: "6. 수행을 유도하기 (Elicit performance)",
-      featureId: "feat-1",
-      experience: "모둠별 찬반 토론 수행 시 음성 녹취 기능으로 발언을 기록하고 입장별 주요 근거 자동 요약 카드 확인"
-    },
-    {
-      id: "step-3",
-      type: "모둠",
-      gagne: "7. 피드백 제공하기 (Provide feedback)",
-      featureId: "feat-2",
-      experience: "요약된 논거를 바탕으로 Upstage Solar AI가 생성한 '정부 실패의 부작용은 어떻게 극복할 것인가?' 등의 심화 발문 피드백에 대해 모둠 재토론 진행"
-    },
-    {
-      id: "step-4",
-      type: "개별",
-      gagne: "8. 수행 기반 평가 실시하기 (Assess performance)",
-      featureId: "feat-3",
-      experience: "찬반 대립 논거 비교 대시보드에서 자신의 초기 입장과 최종 입장의 변화를 비교하고 합리적 개입선에 대한 성찰문 작성"
-    },
-    {
-      id: "step-5",
-      type: "전체",
-      gagne: "9. 파지와 전이 촉진하기 (Enhance retention and transfer)",
-      featureId: "feat-4",
-      experience: "구글 시트 연동 학급 전체 토론 대시보드를 공유하며 시장과 정부의 조화로운 균형에 대한 최종 1줄 소감 제출"
-    }
-  ],
+  ...LESSON_PRESETS.debate,
   apiKey: "up_jskRfswj0ZmfhlfDvjyVBSY81iuh2"
 };
 
@@ -138,6 +136,41 @@ function saveToLocalStorage() {
 
   localStorage.setItem("aiteacher_inperson_state", JSON.stringify(appState));
   updateLiveSummary();
+}
+
+function applyPreset(presetKey) {
+  const preset = LESSON_PRESETS[presetKey];
+  if (!preset) return;
+
+  appState.topic = preset.topic;
+  appState.inquiry = preset.inquiry;
+  appState.target = preset.target;
+  appState.standards = preset.standards;
+  appState.environment = preset.environment;
+  appState.intent = preset.intent;
+  appState.goal = preset.goal;
+  appState.features = JSON.parse(JSON.stringify(preset.features));
+  appState.steps = JSON.parse(JSON.stringify(preset.steps));
+
+  // Update DOM inputs
+  document.getElementById("input-topic").value = appState.topic;
+  document.getElementById("input-inquiry").value = appState.inquiry;
+  document.getElementById("input-target").value = appState.target;
+  document.getElementById("input-standards").value = appState.standards;
+  document.getElementById("input-environment").value = appState.environment;
+  document.getElementById("input-intent").value = appState.intent;
+  document.getElementById("input-goal").value = appState.goal;
+
+  // Update active preset button highlight
+  document.querySelectorAll(".preset-chip").forEach(btn => btn.classList.remove("active"));
+  const activeBtn = document.getElementById(`preset-btn-${presetKey}`);
+  if (activeBtn) activeBtn.classList.add("active");
+
+  saveToLocalStorage();
+  renderFeatures();
+  renderSteps();
+  updateLiveSummary();
+  showToast(`[${preset.topic.split('-')[0]}] 예시 템플릿이 적용되었습니다.`);
 }
 
 // Switch Left View Step & Highlight Arrow
@@ -436,6 +469,15 @@ function initEventListeners() {
     input.addEventListener("input", saveToLocalStorage);
   });
 
+  // Preset Buttons Clicks
+  const btnDebate = document.getElementById("preset-btn-debate");
+  const btnCost = document.getElementById("preset-btn-cost");
+  const btnEnv = document.getElementById("preset-btn-env");
+
+  if (btnDebate) btnDebate.addEventListener("click", () => applyPreset("debate"));
+  if (btnCost) btnCost.addEventListener("click", () => applyPreset("cost"));
+  if (btnEnv) btnEnv.addEventListener("click", () => applyPreset("env"));
+
   // Arrow Stepper Clicks
   document.querySelectorAll(".step-arrow").forEach(arr => {
     arr.addEventListener("click", () => {
@@ -481,14 +523,8 @@ function initEventListeners() {
   // Reset
   document.getElementById("btn-reset").addEventListener("click", () => {
     if (confirm("모든 작성 내용을 통합사회 (시장 실패 vs 정부 개입 토론 도우미) 예시 데이터로 초기화하시겠습니까?")) {
-      appState = JSON.parse(JSON.stringify(DEFAULT_STATE));
-      localStorage.removeItem("aiteacher_inperson_state");
-      loadFromLocalStorage();
-      renderFeatures();
-      renderSteps();
-      updateLiveSummary();
+      applyPreset("debate");
       switchWizardStep(1);
-      showToast("통합사회 토론 도우미 예시 데이터로 초기화되었습니다.");
     }
   });
 
@@ -571,8 +607,8 @@ const response = await fetch("https://api.upstage.ai/v1/chat/completions", {
   body: JSON.stringify({
     model: "solar-pro3",
     messages: [
-      { role: "system", content: "당신은 고등학교 통합사회 논쟁 토론 수업을 지원하는 AI 퍼실리테이터입니다." },
-      { role: "user", content: "모둠별 토론 내용 분석 및 심화 질문 생성" }
+      { role: "system", content: "당신은 사회과 논쟁 토론 및 경제 학습을 지원하는 AI 퍼실리테이터입니다." },
+      { role: "user", content: "학습자 반응 분석 및 심화 탐구 질문/피드백 생성" }
     ],
     stream: false
   })
@@ -582,14 +618,14 @@ console.log(data.choices[0].message.content);
 \`\`\`
 
 - 구글시트 데이터베이스 아키텍처:
-  * 탭 1 명칭: [토론_학습자_기록]
-    - 헤더 명칭: 타임스탬프, 학습자ID, 모둠번호, 성명, 찬반입장, 최종성찰문, 접속디바이스
-  * 탭 2 명칭: [토론_실시간_반응데이터]
-    - 헤더 명칭: 타임스탬프, 모둠번호, 발언단계, 가네수업사태, 연계기능명, 발언녹취내용, AI심화발문, 학생재응답
+  * 탭 1 명칭: [학습자_기록]
+    - 헤더 명칭: 타임스탬프, 학습자ID, 모둠번호, 성명, 선택입장, 최종성찰문, 접속디바이스
+  * 탭 2 명칭: [실시간_반응데이터]
+    - 헤더 명칭: 타임스탬프, 모둠번호, 발언단계, 가네수업사태, 연계기능명, 학습자반응/입력내용, AI피드백/발문, 학생재응답
 `;
 
   document.getElementById("output-prompt").value = promptTemplate;
-  showToast("통합사회 토론 도우미 기반 최종 프롬프트가 산출되었습니다!");
+  showToast("사회과 교수설계 기반 최종 프롬프트가 산출되었습니다!");
 }
 
 async function generateWithUpstage() {

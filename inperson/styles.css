@@ -116,6 +116,15 @@ body {
 .glass-btn:hover { transform: translateY(-2px); background: rgba(255, 255, 255, 0.12); }
 .glass-btn.danger-subtle { background: rgba(239, 68, 68, 0.15); color: #f87171; border-color: rgba(239, 68, 68, 0.3); }
 
+/* Preset Selector Chips */
+.preset-chip {
+  padding: 5px 12px; border-radius: 16px; font-size: 0.78rem; font-weight: 700;
+  background: rgba(255, 255, 255, 0.06); color: var(--text-sub); border: 1px solid var(--panel-border);
+  cursor: pointer; transition: var(--transition-fast); display: inline-flex; align-items: center; gap: 6px;
+}
+.preset-chip:hover { background: rgba(255, 255, 255, 0.14); color: #fff; transform: translateY(-1px); }
+.preset-chip.active { background: rgba(59, 130, 246, 0.25); color: #60a5fa; border-color: rgba(59, 130, 246, 0.5); box-shadow: 0 0 10px rgba(59, 130, 246, 0.3); }
+
 /* Split Workspace (Left: 55%, Right: 45%) */
 .split-workspace {
   display: grid;
@@ -140,7 +149,7 @@ body {
 }
 .step-input-view.active { display: flex; }
 
-.panel-header { margin-bottom: 1rem; }
+.panel-header { margin-bottom: 0.8rem; }
 .step-badge-pill {
   display: inline-block; padding: 3px 10px; border-radius: 12px;
   background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));
