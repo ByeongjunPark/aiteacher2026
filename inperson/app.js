@@ -332,52 +332,40 @@ function generatePrompt() {
   saveToLocalStorage();
 
   const stepsFormatted = appState.steps.map((st, i) => {
-    return `[단계 ${i+1}]
-- 가네 수업 사태: ${st.gagne}
-- 유도 학습 경험 및 구체적 구현 요칭: ${st.experience}`;
+    return `[Step ${i+1}] ${st.gagne}
+- 화면 및 학습 경험: ${st.experience}`;
   }).join("\n\n");
 
-  const promptTemplate = `당신은 구글 앱스스크립트(Google Apps Script, GAS) 기반 교육용 웹 어플리케이션 제작에 최고의 전문성을 가진 시니어 바이브코딩(Vibe Coding) 프롬프트 엔지니어이자 교육공학자입니다.
+  const promptTemplate = `다음 명세서에 따라 구글 앱스스크립트(GAS) 기반 교육용 단일 페이지 웹앱(SPA)의 전체 코드를 작성해 줘. 프론트엔드(Index.html)와 백엔드(Code.gs) 코드를 모두 제공해 주어야 해.
 
-아래 작성된 [체계적 교수설계 명세서]를 엄격히 준수하여, 사용자가 개발할 교육용 웹앱의 구체적인 프론트엔드(\`Index.html\`), 백엔드(\`Code.gs\`), 그리고 구글 시트 탭 별 데이터 헤더 양식을 완벽하게 작성할 수 있도록 **"최고 품질의 앱스스크립트 전용 생성 프롬프트"**를 도출해 주세요.
+1. 배경 및 목표
+- 성취기준 및 학습 목표: ${appState.standards}
+- 학습 대상: ${appState.target}
+- 학습 환경: ${appState.environment}
 
-==============================================
-[체계적 교수설계 명세서 (Instructional Design Specification)]
-==============================================
-1. 학습 대상: ${appState.target}
-2. 성취기준 / 학습 목표: ${appState.standards}
-3. 학습자 동기 설계: ${appState.motivation}
-4. 학습 환경: ${appState.environment}
-5. 웹앱 학습경험 최종 목표: ${appState.goal}
+2. 사용자 분석
+- 학습자 동기 및 교사 도입 의도: ${appState.motivation}
+- 웹앱 최종 학습경험 목표: ${appState.goal}
 
-6. 학습자 관점 웹앱 단계별 시나리오 (가네의 수업 사태 연계):
+3. 핵심 기능 정의
+- 교수설계가 반영된 인터랙티브 UI 및 즉각적 피드백 시스템 제공
+- google.script.run 비동기 API를 사용한 실시간 구글 시트 데이터 저장(saveData) 및 로드(loadData) 처리
+- 학생용 크롬북 및 모바일 디바이스에 완벽히 호환되는 반응형 UI 구성
+
+4. 화면의 흐름 (가네의 9가지 수업 사태 연계)
 ${stepsFormatted}
 
-==============================================
-[AI 모델에 전달할 지시사항 (App Blueprint Guidelines)]
-==============================================
-위 명세서에 맞춰 제작될 웹앱은 반드시 구글 앱스스크립트(GAS) 환경에서 구동되는 단일 페이지 웹앱(SPA)이어야 합니다.
-다음에 지정된 3가지 핵심 출력물 아키텍처를 정확히 반영하여 웹앱 소스코드를 생성할 수 있는 완벽하고 구체적인 프롬프트를 작성해주세요.
-
-1. 프론트엔드 (Index.html):
-- HTML5, Vanilla JavaScript, Tailwind CSS (CDN) 또는 Modern Glassmorphism Vanilla CSS 활용.
-- 모바일/크롬북 반응형 레이아웃 적용.
-- 교수설계의 각 단계(Step)별 인터랙티브 학습 화면 구현.
-- google.script.run API를 통한 비동기 데이터 송수신 처리.
-
-2. 백엔드 (Code.gs):
-- doGet(e) 함수를 통해 Index.html 템플릿 반환.
-- saveData(studentData), loadData(studentId) 등 실시간 학습자 반응 및 진행 상황을 구글 시트에 기록하고 불러오는 백엔드 함수 포함.
-- 에러 핸들링 및 JSON 반환 구조 완비.
-
-3. 구글 시트 데이터베이스 (Tab & Header Schema):
-- 탭 1: [학습자_기록] (타임스탬프, 학습자ID, 성명, 현재단계, 총점수, 접속환경, 최종완료여부)
-- 탭 2: [단계별_반응데이터] (타임스탬프, 학습자ID, 단계번호, 가네수업사태, 제출답안/인터랙션기록, 피드백내용)
-
-위 아키텍처를 토대로 AI가 코드를 즉시 작성할 수 있도록 명확하고 체계적인 마스터 바이브코딩 프롬프트를 제시해 주십시오.`;
+5. 참고자료
+- 기술 스택: 구글 앱스스크립트(Code.gs), HTML5, Vanilla JavaScript, CSS (Vanilla CSS 또는 Tailwind CDN)
+- 구글시트 데이터베이스 아키텍처:
+  * 탭 1 명칭: [학습자_기록]
+    - 헤더 명칭: 타임스탬프, 학습자ID, 성명, 현재단계, 총점수, 접속환경, 최종완료여부
+  * 탭 2 명칭: [단계별_반응데이터]
+    - 헤더 명칭: 타임스탬프, 학습자ID, 단계번호, 가네수업사태, 제출답안/인터랙션기록, 피드백내용
+`;
 
   document.getElementById("output-prompt").value = promptTemplate;
-  showToast("프롬프트가 성공적으로 산출되었습니다!");
+  showToast("코드를 생성하는 최종 프롬프트가 산출되었습니다!");
 }
 
 async function generateWithUpstage() {
