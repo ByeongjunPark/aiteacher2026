@@ -487,6 +487,7 @@ ${stepsFormatted}
 `;
 
   try {
+    let errMessage = "";
     const response = await fetch("https://api.upstage.ai/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -494,7 +495,7 @@ ${stepsFormatted}
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        model: "solar-pro3",
+        model: "solar-pro",
         messages: [
           {
             role: "system",
@@ -540,7 +541,15 @@ ${stepsFormatted}
       })
     });
 
-    if (!response.ok) throw new Error(`API Error: ${response.status}`);
+    if (!response.ok) {
+      const errJson = await response.json().catch(() => ({}));
+      if (errJson.error && errJson.error.message) {
+        errMessage = `Upstage API 오류: ${errJson.error.message}`;
+      } else {
+        errMessage = `Upstage API Error: ${response.status}`;
+      }
+      throw new Error(errMessage);
+    }
 
     const data = await response.json();
     let resultText = data.choices[0]?.message?.content || "";
@@ -556,7 +565,9 @@ ${stepsFormatted}
   } catch (err) {
     console.error("Upstage API Error:", err);
     generatePrompt();
-    showToast("Upstage AI 분석 실패. 기본 산출 프롬프트를 표시합니다.");
+    showToast(err.message.includes("credit") || err.message.includes("API key") 
+      ? "Upstage API 키 크레딧 부족/정지 상태입니다. (기본 산출 프롬프트가 표시됩니다)" 
+      : "Upstage AI 분석 실패. 기본 산출 프롬프트를 표시합니다.");
   } finally {
     loadingEl.style.display = "none";
   }
