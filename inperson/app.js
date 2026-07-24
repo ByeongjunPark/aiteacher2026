@@ -375,7 +375,6 @@ function initEventListeners() {
 function generatePrompt() {
   saveToLocalStorage();
 
-  // Extract core features from tool roles across steps
   const coreFeaturesList = appState.steps
     .filter(st => st.toolRole && st.toolRole.trim() !== "")
     .map((st, i) => `- [기능 ${i+1}] (${st.title || '단계 ' + (i+1)}) 도구 기능: ${st.toolRole}`)
@@ -383,14 +382,15 @@ function generatePrompt() {
 
   const featuresSection = coreFeaturesList || "- [기능 1] 웹앱 인터랙션 및 데이터 처리 기능";
 
-  // Format Steps Section
+  // Format Steps Section (교사 vs 학생 도메인 연계)
   const stepsFormatted = appState.steps.map((st, i) => {
+    const domainStr = st.actType === '교사' ? '교사 도메인 (Teacher Dashboard / Control View)' : '학생 도메인 (Student Learning Workspace)';
     return `- [Step ${i+1}] ${st.title || '단계명 미작성'} | [학습 형태: ${st.groupType || '전체'}활동] | [활동 주체: ${st.actType || '교사'} 활동]
   * ${st.actType || '교사'} 활동 내용: ${st.actDesc || '미작성'}
+  * 연계 도메인 (사용자 뷰): ${domainStr}
   * 도구의 교육적 역할 및 기능: ${st.toolRole || '미작성'}`;
   }).join("\n\n");
 
-  // Check if AI API is mentioned
   const allText = JSON.stringify(appState);
   const needsAiApi = /AI|인공지능|Upstage|Solar|녹취|발문|요약|LLM|챗봇/i.test(allText);
 
@@ -440,6 +440,10 @@ ${upstageCodeSnippet}`;
 - **미세 애니메이션**: 마우스 호버 시 입체감이 살아나는 트렌디한 미세 애니메이션(smooth transform, soft box-shadow, glowing border)을 모든 버튼과 입력 카드에 적용.
 - **반응형 레이아웃**: 학생들의 크롬북/태블릿 및 교사 디스플레이 화면 크기에 맞춰 자연스럽게 재배치되는 CSS Grid/Flexbox 반응형 UI 구현.
 
+[👥 이중 사용자 도메인 (Teacher & Student Dual Domain) 분리 구조]
+- **교사 도메인 (Teacher View / Dashboard)**: 모둠별/개별 학습 현황 실시간 모니터링, 학급 전체 데이터 시각화 대시보드, 수업 진행 단계(Step) 컨트롤, AI 심화 피드백 개입
+- **학생 도메인 (Student View / Learner Workspace)**: 학번/이름/모둠 로그인, 단계별 활동 수행(음성 녹취, 의견 제출, AI 심화 발문 응답), 모둠원 실시간 결과 공유
+
 1. 배경 및 목표
 - 수업 주제(교과 및 단원): ${appState.topic || '미작성'}
 - 탐구 질문: ${appState.inquiry || '미작성'}
@@ -447,14 +451,16 @@ ${upstageCodeSnippet}`;
 - 학습 대상: ${appState.target || '미작성'}
 - 디바이스 및 유의사항(학습 환경): ${appState.environment || '미작성'}
 
-2. 사용자 분석
+2. 사용자 분석 및 사용자 도메인 설계
 - 수업 의도 및 학생 분석: ${appState.intent || '미작성'}
 - 디지털 도구로서 웹앱의 역할 및 핵심 목표: ${appState.goal || '미작성'}
+- **교사 도메인 역할**: 전체 모둠 실시간 활동 모니터링, 수업 단계 제어, 통합 구글 시트 연동 데이터 총괄 관리
+- **학생 도메인 역할**: 학번/모둠 로그인, 단계별 교사/학생 활동 수행, AI 맞춤 피드백 수신 및 성찰문 제출
 
 3. 핵심 기능 정의
 ${featuresSection}
 
-4. 화면의 흐름 (수업 활동 및 도구의 역할 매핑)
+4. 화면의 흐름 (수업 활동 및 도구의 역할 / 사용자 도메인 매핑)
 ${stepsFormatted}
 
 5. 참고자료
@@ -464,11 +470,11 @@ ${apiReferenceBlock}
   * 탭 1 명칭: [학습자_기록]
     - 헤더 명칭: 타임스탬프, 학습자ID, 모둠번호, 성명, 현재단계, 최종제출내용, 접속디바이스
   * 탭 2 명칭: [실시간_반응데이터]
-    - 헤더 명칭: 타임스탬프, 모둠번호, 화면단계명, 학습형태, 활동주체, 활동내용, 도구역할피드백
+    - 헤더 명칭: 타임스탬프, 모둠번호, 화면단계명, 학습형태, 활동주체, 연계도메인, 활동내용, 도구역할피드백
 `;
 
   document.getElementById("output-prompt").value = promptTemplate;
-  showToast("모던 디자인 지침 및 Upstage API 레퍼런스가 포함된 마스터 프롬프트가 산출되었습니다!");
+  showToast("교사/학생 도메인이 차별화된 마스터 프롬프트가 산출되었습니다!");
 }
 
 async function generateWithUpstage() {
@@ -518,8 +524,9 @@ ${stepsFormatted}
 [필수 준수 지침]
 1. 절대 영문 서론/사족("The user asks...", "Here is the prompt...")을 출력하지 마십시오.
 2. 코드를 생성하지 말고, 프롬프트 전문만 작성하십시오.
-3. 반드시 아래의 [5가지 필수 목차 양식]과 [🎨 UI/UX 모던 디자인 요구사항]을 100% 엄격히 준수하십시오.
-4. Section 5(참고자료)에 반드시 Upstage Solar API 연동 레퍼런스 코드(OpenAI SDK solar-pro3 모델 호출 코드)를 포함하십시오.
+3. 반드시 [교사 도메인(모둠 모니터링, 대시보드, 수업제어)]과 [학생 도메인(로그인, 세션참여, AI 피드백 수신)]의 역할 및 화면 뷰를 명확히 차별화하는 이중 도메인 구조 지침을 포함하십시오.
+4. 반드시 아래의 [5가지 필수 목차 양식]과 [🎨 UI/UX 모던 디자인 요구사항]을 100% 엄격히 준수하십시오.
+5. Section 5(참고자료)에 반드시 Upstage Solar API 연동 레퍼런스 코드(OpenAI SDK solar-pro3 모델 호출 코드)를 포함하십시오.
 
 [5가지 필수 목차 양식]
 다음 명세서에 따라 구글 앱스스크립트(GAS) 기반 교육용 단일 페이지 웹앱(SPA)의 전체 코드를 작성해 줘. 프론트엔드(Index.html)와 백엔드(Code.gs) 코드를 모두 제공해 주어야 해.
