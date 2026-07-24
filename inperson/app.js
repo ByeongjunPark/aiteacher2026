@@ -1,6 +1,6 @@
 /**
  * AI Teacher 2026 - Inperson Prompt Generator Engine
- * Simplified 4-Element Step Design based on Lesson Plan Template
+ * Simplified 4-Element Step Design (Choose Teacher Act vs Student Act)
  */
 
 const DEFAULT_STATE = {
@@ -16,9 +16,9 @@ const DEFAULT_STATE = {
     {
       id: "step-1",
       title: "",
-      type: "전체",
-      teacherAct: "",
-      studentAct: "",
+      groupType: "전체",
+      actType: "교사",
+      actDesc: "",
       toolRole: ""
     }
   ],
@@ -108,7 +108,7 @@ function switchWizardStep(stepNum) {
   }
 }
 
-// Render Step 3: Web App Step Design (4 Elements per Step)
+// Render Step 3: Web App Step Design (Choose Teacher vs Student Act)
 function renderSteps() {
   const container = document.getElementById("steps-container");
   container.innerHTML = "";
@@ -120,8 +120,12 @@ function renderSteps() {
     stepEl.dataset.id = step.id;
     stepEl.dataset.index = index;
 
-    const typeOptions = ["전체", "모둠", "개별"].map(t => 
-      `<option value="${t}" ${t === (step.type || '전체') ? 'selected' : ''}>${t} 활동</option>`
+    const groupOptions = ["전체", "모둠", "개별"].map(t => 
+      `<option value="${t}" ${t === (step.groupType || '전체') ? 'selected' : ''}>${t} 활동</option>`
+    ).join('');
+
+    const actTypeOptions = ["교사", "학생"].map(a => 
+      `<option value="${a}" ${a === (step.actType || '교사') ? 'selected' : ''}>${a} 활동</option>`
     ).join('');
 
     stepEl.innerHTML = `
@@ -129,7 +133,7 @@ function renderSteps() {
         <div class="drag-handle">
           <i class="fa-solid fa-grip-vertical"></i>
           <span>화면 단계 ${index + 1}</span>
-          <span class="step-badge">${step.type || '전체'}</span>
+          <span class="step-badge">${step.groupType || '전체'} | ${step.actType || '교사'}활동</span>
         </div>
         <button class="btn-delete-item btn-delete-step" data-index="${index}" title="삭제"><i class="fa-solid fa-trash-can"></i></button>
       </div>
@@ -138,32 +142,34 @@ function renderSteps() {
       <div class="form-group-row" style="display: grid; grid-template-columns: 2fr 1fr; gap: 10px; align-items: start;">
         <div class="form-group">
           <label><i class="fa-solid fa-layer-group"></i> 1. 화면 흐름 단계 (단계명 / 활동제목)</label>
-          <input type="text" class="step-title-input" data-index="${index}" value="${step.title || ''}" placeholder="예: 1단계 - 동기 유발 및 로그인 / 2단계 - 토론 수행">
+          <input type="text" class="step-title-input" data-index="${index}" value="${step.title || ''}" placeholder="예: 1단계 - 동기 유발 / 2단계 - 토론 수행">
         </div>
         <div class="form-group">
           <label><i class="fa-solid fa-users"></i> 2. 학습 형태</label>
-          <select class="type-select" data-index="${index}">
-            ${typeOptions}
+          <select class="group-select" data-index="${index}">
+            ${groupOptions}
           </select>
         </div>
       </div>
 
-      <!-- 3: 교사활동 / 학생활동 구분 -->
-      <div class="form-group-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-items: start;">
+      <!-- 3: 교사활동 / 학생활동 선택 및 내용 -->
+      <div class="form-group-row" style="display: grid; grid-template-columns: 1fr 2fr; gap: 10px; align-items: start;">
         <div class="form-group">
-          <label><i class="fa-solid fa-chalkboard-user"></i> 3-1. 교사 활동</label>
-          <textarea rows="2" class="teacher-act-input" data-index="${index}" placeholder="교사가 제공하는 안내, 사례 제시, 발문 내용">${step.teacherAct || ''}</textarea>
+          <label><i class="fa-solid fa-user-gear"></i> 3-1. 활동 주체 구분</label>
+          <select class="act-type-select" data-index="${index}">
+            ${actTypeOptions}
+          </select>
         </div>
         <div class="form-group">
-          <label><i class="fa-solid fa-user-pen"></i> 3-2. 학생 활동</label>
-          <textarea rows="2" class="student-act-input" data-index="${index}" placeholder="학습자가 수행하는 입력, 토론, 관찰, 탐구 내용">${step.studentAct || ''}</textarea>
+          <label><i class="fa-solid fa-pen-nib"></i> 3-2. 활동 내용</label>
+          <textarea rows="2" class="act-desc-input" data-index="${index}" placeholder="선택한 활동(교사 또는 학생)의 구체적인 내용 작성">${step.actDesc || ''}</textarea>
         </div>
       </div>
 
       <!-- 4: 해당 화면에서 도구의 교육적 역할 설명 -->
       <div class="form-group">
         <label style="color: #c084fc;"><i class="fa-solid fa-wand-magic-sparkles"></i> 4. 해당 화면에서 도구(웹앱)의 교육적 역할 및 기능 설명</label>
-        <textarea rows="2" class="tool-role-input" data-index="${index}" placeholder="웹앱 화면이 수행하는 역할 (예: 찬반 발언 음성 녹취 요약, AI 심화 질문 생성, 결과 시각 그래프 피드백 등)">${step.toolRole || ''}</textarea>
+        <textarea rows="2" class="tool-role-input" data-index="${index}" placeholder="웹앱 화면이 수행하는 역할 (예: 사례 카드 제시, 찬반 음성 요약, AI 심화 질문 생성, 시각 피드백 등)">${step.toolRole || ''}</textarea>
       </div>
     `;
 
@@ -172,19 +178,20 @@ function renderSteps() {
       saveToLocalStorage();
     });
 
-    stepEl.querySelector(".type-select").addEventListener("change", (e) => {
-      appState.steps[index].type = e.target.value;
+    stepEl.querySelector(".group-select").addEventListener("change", (e) => {
+      appState.steps[index].groupType = e.target.value;
       saveToLocalStorage();
       renderSteps();
     });
 
-    stepEl.querySelector(".teacher-act-input").addEventListener("input", (e) => {
-      appState.steps[index].teacherAct = e.target.value;
+    stepEl.querySelector(".act-type-select").addEventListener("change", (e) => {
+      appState.steps[index].actType = e.target.value;
       saveToLocalStorage();
+      renderSteps();
     });
 
-    stepEl.querySelector(".student-act-input").addEventListener("input", (e) => {
-      appState.steps[index].studentAct = e.target.value;
+    stepEl.querySelector(".act-desc-input").addEventListener("input", (e) => {
+      appState.steps[index].actDesc = e.target.value;
       saveToLocalStorage();
     });
 
@@ -279,9 +286,8 @@ function updateLiveSummary() {
       const node = document.createElement("div");
       node.className = "tree-step-node";
       node.innerHTML = `
-        <div class="tree-step-title">단계 ${idx + 1}: ${st.title || '(단계명 미입력)'} <span class="badge-tag" style="margin-left: 5px; font-size: 0.7em;">${st.type || '전체'}</span></div>
-        <div style="margin-top: 2px;"><strong>교사:</strong> ${st.teacherAct || '미작성'}</div>
-        <div><strong>학생:</strong> ${st.studentAct || '미작성'}</div>
+        <div class="tree-step-title">단계 ${idx + 1}: ${st.title || '(단계명 미입력)'} <span class="badge-tag" style="margin-left: 5px; font-size: 0.7em;">${st.groupType || '전체'} | ${st.actType || '교사'}활동</span></div>
+        <div style="margin-top: 2px;"><strong>${st.actType || '교사'} 활동:</strong> ${st.actDesc || '미작성'}</div>
         <div style="color: #c084fc; margin-top: 2px;"><strong>도구 역할:</strong> ${st.toolRole || '미작성'}</div>
       `;
       treeContainer.appendChild(node);
@@ -315,9 +321,9 @@ function initEventListeners() {
     const newStep = {
       id: `step-${Date.now()}`,
       title: "",
-      type: "전체",
-      teacherAct: "",
-      studentAct: "",
+      groupType: "전체",
+      actType: "교사",
+      actDesc: "",
       toolRole: ""
     };
     appState.steps.push(newStep);
@@ -373,12 +379,11 @@ function generatePrompt() {
 
   const featuresSection = coreFeaturesList || "- [기능 1] 웹앱 인터랙션 및 데이터 처리 기능";
 
-  // Format Steps Section (4가지 요소 매핑)
+  // Format Steps Section
   const stepsFormatted = appState.steps.map((st, i) => {
-    return `- [Step ${i+1}] ${st.title || '단계명 미작성'} | [학습 형태: ${st.type || '전체'}활동]
-  * 교사 활동: ${st.teacherAct || '미작성'}
-  * 학생 활동: ${st.studentAct || '미작성'}
-  * 도구의 교육적 역할: ${st.toolRole || '미작성'}`;
+    return `- [Step ${i+1}] ${st.title || '단계명 미작성'} | [학습 형태: ${st.groupType || '전체'}활동] | [활동 주체: ${st.actType || '교사'} 활동]
+  * ${st.actType || '교사'} 활동 내용: ${st.actDesc || '미작성'}
+  * 도구의 교육적 역할 및 기능: ${st.toolRole || '미작성'}`;
   }).join("\n\n");
 
   // Check if AI API is mentioned
@@ -443,7 +448,7 @@ ${apiReferenceBlock}
   * 탭 1 명칭: [학습자_기록]
     - 헤더 명칭: 타임스탬프, 학습자ID, 모둠번호, 성명, 현재단계, 최종제출내용, 접속디바이스
   * 탭 2 명칭: [실시간_반응데이터]
-    - 헤더 명칭: 타임스탬프, 모둠번호, 화면단계명, 학습형태, 교사활동, 학습자반응/입력, 도구역할피드백
+    - 헤더 명칭: 타임스탬프, 모둠번호, 화면단계명, 학습형태, 활동주체, 활동내용, 도구역할피드백
 `;
 
   document.getElementById("output-prompt").value = promptTemplate;
@@ -458,9 +463,8 @@ async function generateWithUpstage() {
   loadingEl.style.display = "flex";
 
   const stepsFormatted = appState.steps.map((st, i) => {
-    return `[Step ${i+1}] 화면단계명: ${st.title || '미작성'} | 학습형태: ${st.type || '전체'}활동
-  - 교사 활동: ${st.teacherAct || '미작성'}
-  - 학생 활동: ${st.studentAct || '미작성'}
+    return `[Step ${i+1}] 화면단계명: ${st.title || '미작성'} | 학습형태: ${st.groupType || '전체'}활동 | 활동주체: ${st.actType || '교사'}활동
+  - 활동 내용: ${st.actDesc || '미작성'}
   - 도구의 교육적 역할 및 기능: ${st.toolRole || '미작성'}`;
   }).join("\n\n");
 
@@ -474,7 +478,7 @@ async function generateWithUpstage() {
 6. 수업 의도 및 학생 분석: ${appState.intent}
 7. 디지털 도구로서 웹앱의 역할 및 핵심 목표: ${appState.goal}
 
-[3단계: 웹앱 단계별 화면 설계 (교사활동 / 학생활동 / 도구역할)]
+[3단계: 웹앱 단계별 화면 설계 (교사/학생활동 구분 선택 + 도구역할)]
 ${stepsFormatted}
 `;
 
@@ -516,7 +520,7 @@ ${stepsFormatted}
 (3단계 도구의 역할 항목들을 종합 정리하여 작성)
 
 4. 화면의 흐름 (수업 활동 및 도구의 역할 매핑)
-(각 단계별 1. 화면단계명, 2. 학습형태, 3. 교사/학생활동, 4. 도구의 역할 4가지 요소 매핑하여 작성)
+(각 단계별 1. 화면단계명, 2. 학습형태, 3. 활동주체 및 내용, 4. 도구의 역할 요소 매핑하여 작성)
 
 5. 참고자료
 - 기술 스택 (Code.gs, HTML5, Vanilla JS, CSS)
