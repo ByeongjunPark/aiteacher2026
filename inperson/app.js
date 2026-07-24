@@ -1,6 +1,6 @@
 /**
  * AI Teacher 2026 - Inperson Prompt Generator Engine
- * 5-Step Wizard Engine with Feature Definition & App Step Mapping (Social Studies Example)
+ * 5-Step Wizard Engine with Upstage API Integration & High School Debate Assistant (Market Failure vs Govt Intervention)
  */
 
 const GAGNE_EVENTS = [
@@ -18,77 +18,77 @@ const GAGNE_EVENTS = [
 
 const DEFAULT_STATE = {
   currentStep: 1,
-  // 1단계: 수업 배경 및 기본 정보 (사회과 예시)
-  topic: "사회 5학년 2학기 1. 체계적 경제 활동과 합리적 선택 (3차시)",
-  inquiry: "한정된 예산 속에서 최선의 만족을 얻는 '합리적 선택'은 어떻게 할까?",
-  target: "초등학교 5학년 2반 (22명)",
-  standards: "[5사04-01] 자원의 희소성으로 인해 선택의 문제가 발생함을 이해하고, 일상생활에서 합리적으로 선택하는 방법을 탐구한다.",
-  environment: "1인 1디바이스(크롬북/태블릿), 교실 무선 AP, 구글 클래스룸 연동",
+  // 1단계: 수업 배경 및 기본 정보 (창원여고 박병준 교사 지도안 연동)
+  topic: "고등학교 1학년 통합사회2-(3) 시장경제와 지속가능 발전 - 시장 실패와 정부의 경제적 개입",
+  inquiry: "보이지 않는 손은 왜 종종 실패할까? 시장 실패에 대한 정부의 경제적 개입은 어느 정도의 선이 적절할까?",
+  target: "고등학교 1학년 학생 (창원여고, 24명)",
+  standards: "[10통사2-03-01] 자본주의의 역사적 전개 과정과 특징을 조사하고, 시장과 정부의 관계를 중심으로 다양한 삶의 방식을 비교 평가한다.\n[10통사2-03-02] 합리적 선택의 의미와 한계를 파악하고, 지속가능발전을 위해 요청되는 정부의 역할과 책임을 탐구한다.",
+  environment: "1인 1디바이스(크롬북/태블릿), 무선 AP, 음성 녹음 마이크, Google Apps Script 백엔드",
 
-  // 2단계: 앱 도입 의도 및 핵심 목표
-  intent: "학생들이 용돈 관리 시 기회비용 개념을 어려워하므로, 직접 가상 선택을 해보며 기회비용과 만족도를 실시간으로 비교·평가하는 모의시뮬레이션 경험을 제공하고자 함.",
-  goal: "가상 예산 안에서 다양한 선택지의 기회비용과 이익을 시뮬레이션하고, 선택 결과에 따른 합리성 피드백을 통해 올바른 의사결정 능력을 함양하는 사회과 학습용 웹앱",
+  // 2단계: 앱 도입 의도 및 학습 경험 목표
+  intent: "시장 실패(공공재, 독과점, 외부효과)와 정부 개입(규제, 보조금)에 대한 거시 경제 개념을 어려워하므로, 논쟁 토론 중 실시간 음성/텍스트 입력을 통해 입장을 정리해주고 AI 심화 발문을 제공하여 비판적·분석적 사고 역량을 신장시키고자 함.",
+  goal: "모둠별 찬반 토론 내용을 실시간 요약·정리하고, 토론 흐름을 분석하여 비판적 사고를 자극하는 AI 심화 발문과 입장 비교 리포트를 자동 생성해주는 AI 토론수업 도우미 웹앱",
 
-  // 3단계: 웹앱 핵심 기능 정의 (선생님이 직접 등록하는 기능 목록)
+  // 3단계: 웹앱 핵심 기능 정의 (토론 수업 도우미 기능)
   features: [
     {
       id: "feat-1",
-      title: "선택지별 기회비용 & 만족도 실시간 계산기",
-      desc: "대안(예: 학용품 vs 간식 vs 저축) 선택 시 포기한 대안 중 가장 가치가 큰 기회비용과 기대 만족도 수치를 라이브로 비교 산출하는 기능"
+      title: "토론 음성 녹취 & 입장별 핵심 주장 실시간 요약",
+      desc: "모둠 토론 음성(또는 텍스트)을 입력받아 정부 개입 찬성(시장 실패 보완) vs 반대(정부 실패/자율성) 입장별 핵심 주장과 근거를 실시간 항목별로 자동 요약해 주는 기능"
     },
     {
       id: "feat-2",
-      title: "돌발 상충 변수 시뮬레이터 (예산 제약 조건)",
-      desc: "갑작스러운 예산 감소(예: 가격 인상, 긴급 지출) 시 분기 조건에 따라 대안을 수정하도록 유도하는 동적 시뮬레이션 기능"
+      title: "Upstage Solar-Pro3 연동 AI 심화 발문 생성기",
+      desc: "토론의 맹점과 논리적 허점을 AI(Upstage API)가 분석하여, 비판적 사고를 촉진하는 맞춤형 반론 및 심화 탐구 질문을 실시간 제시해 주는 기능"
     },
     {
       id: "feat-3",
-      title: "합리적 선택 피드백 & 레이더 차트 분석",
-      desc: "최종 선택 완료 후 기회비용 대비 만족도 효율성을 점수화하고 '합리적 소비왕' 뱃지 및 시각 피드백 제공 기능"
+      title: "시장 실패 vs 정부 실패 찬반 대립 논거 비교 대시보드",
+      desc: "공공재, 외부효과, 독과점 사례별로 학생들이 제시한 찬반 논거를 시각적 매트릭스로 비교 분석하고 토론 균형도를 나타내 주는 기능"
     },
     {
       id: "feat-4",
-      title: "학급 합리적 선택 데이터 공유 보드 (구글 시트 연동)",
-      desc: "모둠/학급 학생들의 선택 결과와 그 이유를 구글 시트에 저장하여 실시간 그래프와 학급 통계로 공유하는 기능"
+      title: "구글 시트 연동 토론 성찰 리포트 & 학급 공유 보드",
+      desc: "모둠별 토론 기록, AI 심화 발문에 대한 답변, 최종 입장 성찰문을 구글 시트 DB에 저장하고 학급 전체 대시보드로 공유하는 백엔드 연동 기능"
     }
   ],
 
-  // 4단계: 학습자 관점 웹앱 단계 설계 (3단계 핵심 기능과 연계)
+  // 4단계: 학습자 관점 웹앱 단계 설계 (3단계 핵심 기능 연계)
   steps: [
     {
       id: "step-1",
       type: "전체",
       gagne: "1. 주의 집중시키기 (Gain attention)",
       featureId: "feat-1",
-      experience: "한정된 용돈(10,000원)으로 사고 싶은 것들을 마주했을 때 발생하는 선택의 갈등 상황 애니메이션 제시"
+      experience: "환경오염(외부효과) 사례 카드 제시 후 '정부가 어디까지 개입해야 하는가?' 딜레마 문제 상기"
     },
     {
       id: "step-2",
-      type: "개별",
-      gagne: "5. 학습 안내 제시하기 (Provide learning guidance)",
+      type: "모둠",
+      gagne: "6. 수행을 유도하기 (Elicit performance)",
       featureId: "feat-1",
-      experience: "선택지 A, B, C를 클릭해 보며 각 선택 시 발생하는 기회비용과 이익 수치가 실시간 계산기로 시각화되는 화면 안내"
+      experience: "모둠별 찬반 토론 수행 시 음성 녹취 기능으로 발언을 기록하고 입장별 주요 근거 자동 요약 카드 확인"
     },
     {
       id: "step-3",
       type: "모둠",
-      gagne: "6. 수행을 유도하기 (Elicit performance)",
+      gagne: "7. 피드백 제공하기 (Provide feedback)",
       featureId: "feat-2",
-      experience: "모둠별로 '갑작스러운 가격 인상' 돌발 변수 시뮬레이터를 작동시켜 제한 시간 내에 가장 합리적인 대안으로 재조정하는 미션 수행"
+      experience: "요약된 논거를 바탕으로 Upstage Solar AI가 생성한 '정부 실패의 부작용은 어떻게 극복할 것인가?' 등의 심화 발문 피드백에 대해 모둠 재토론 진행"
     },
     {
       id: "step-4",
       type: "개별",
-      gagne: "7. 피드백 제공하기 (Provide feedback)",
+      gagne: "8. 수행 기반 평가 실시하기 (Assess performance)",
       featureId: "feat-3",
-      experience: "자신이 내린 최종 결정의 합리성 점수와 기회비용 분석 레이더 차트 리포트 확인 및 맞춤형 피드백 뱃지 획득"
+      experience: "찬반 대립 논거 비교 대시보드에서 자신의 초기 입장과 최종 입장의 변화를 비교하고 합리적 개입선에 대한 성찰문 작성"
     },
     {
       id: "step-5",
       type: "전체",
       gagne: "9. 파지와 전이 촉진하기 (Enhance retention and transfer)",
       featureId: "feat-4",
-      experience: "학급 전체의 선택 이유 통계를 구글 시트 연동 공유 보드로 비교하고, 실생활 합리적 소비 다짐 한마디 작성하기"
+      experience: "구글 시트 연동 학급 전체 토론 대시보드를 공유하며 시장과 정부의 조화로운 균형에 대한 최종 1줄 소감 제출"
     }
   ],
   apiKey: "up_jskRfswj0ZmfhlfDvjyVBSY81iuh2"
@@ -197,7 +197,7 @@ function renderFeatures() {
 
       <div class="form-group">
         <label><i class="fa-solid fa-heading"></i> 기능 명칭</label>
-        <input type="text" class="feat-title-input" data-index="${index}" value="${feat.title || ''}" placeholder="기능 명칭을 입력하세요 (예: 선택지별 기회비용 실시간 계산기)">
+        <input type="text" class="feat-title-input" data-index="${index}" value="${feat.title || ''}" placeholder="기능 명칭을 입력하세요">
       </div>
 
       <div class="form-group">
@@ -209,7 +209,7 @@ function renderFeatures() {
     featEl.querySelector(".feat-title-input").addEventListener("input", (e) => {
       appState.features[index].title = e.target.value;
       saveToLocalStorage();
-      renderSteps(); // Update step dropdown options
+      renderSteps();
     });
 
     featEl.querySelector(".feat-desc-input").addEventListener("input", (e) => {
@@ -248,7 +248,6 @@ function renderSteps() {
       `<option value="${t}" ${t === (step.type || '전체') ? 'selected' : ''}>${t}</option>`
     ).join('');
 
-    // Feature Options dropdown dynamically built from Step 3
     let featureOptions = `<option value="">-- 핵심 기능 연계 안함 --</option>`;
     appState.features.forEach(f => {
       featureOptions += `<option value="${f.id}" ${f.id === step.featureId ? 'selected' : ''}>${f.title || '무제 기능'}</option>`;
@@ -481,7 +480,7 @@ function initEventListeners() {
 
   // Reset
   document.getElementById("btn-reset").addEventListener("click", () => {
-    if (confirm("모든 작성 내용을 사회과(합리적 선택) 기본 예시 데이터로 초기화하시겠습니까?")) {
+    if (confirm("모든 작성 내용을 통합사회 (시장 실패 vs 정부 개입 토론 도우미) 예시 데이터로 초기화하시겠습니까?")) {
       appState = JSON.parse(JSON.stringify(DEFAULT_STATE));
       localStorage.removeItem("aiteacher_inperson_state");
       loadFromLocalStorage();
@@ -489,7 +488,7 @@ function initEventListeners() {
       renderSteps();
       updateLiveSummary();
       switchWizardStep(1);
-      showToast("데이터가 사회과 예시로 초기화되었습니다.");
+      showToast("통합사회 토론 도우미 예시 데이터로 초기화되었습니다.");
     }
   });
 
@@ -555,15 +554,42 @@ ${stepsFormatted}
 
 5. 참고자료
 - 기술 스택: 구글 앱스스크립트(Code.gs), HTML5, Vanilla JavaScript, CSS (Vanilla CSS 또는 Tailwind CDN)
+- AI API 연동 가이드 및 레퍼런스 코드 (Upstage Solar-Pro3 Integration):
+  * Upstage API Key: "${appState.apiKey || 'up_jskRfswj0ZmfhlfDvjyVBSY81iuh2'}"
+  * Base URL: "https://api.upstage.ai/v1"
+  * Target Model: "solar-pro3"
+  * 백엔드(Code.gs) 또는 프론트엔드 API 호출 방식 예시:
+\`\`\`javascript
+// Upstage Chat Completions API Call Reference
+const apiKey = "${appState.apiKey || 'up_jskRfswj0ZmfhlfDvjyVBSY81iuh2'}";
+const response = await fetch("https://api.upstage.ai/v1/chat/completions", {
+  method: "POST",
+  headers: {
+    "Authorization": \`Bearer \${apiKey}\`,
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    model: "solar-pro3",
+    messages: [
+      { role: "system", content: "당신은 고등학교 통합사회 논쟁 토론 수업을 지원하는 AI 퍼실리테이터입니다." },
+      { role: "user", content: "모둠별 토론 내용 분석 및 심화 질문 생성" }
+    ],
+    stream: false
+  })
+});
+const data = await response.json();
+console.log(data.choices[0].message.content);
+\`\`\`
+
 - 구글시트 데이터베이스 아키텍처:
-  * 탭 1 명칭: [학습자_기록]
-    - 헤더 명칭: 타임스탬프, 학습자ID, 성명, 현재단계, 총점수, 접속환경, 최종완료여부
-  * 탭 2 명칭: [단계별_반응데이터]
-    - 헤더 명칭: 타임스탬프, 학습자ID, 단계번호, 가네수업사태, 연계기능명, 제출답안/인터랙션기록, 피드백내용
+  * 탭 1 명칭: [토론_학습자_기록]
+    - 헤더 명칭: 타임스탬프, 학습자ID, 모둠번호, 성명, 찬반입장, 최종성찰문, 접속디바이스
+  * 탭 2 명칭: [토론_실시간_반응데이터]
+    - 헤더 명칭: 타임스탬프, 모둠번호, 발언단계, 가네수업사태, 연계기능명, 발언녹취내용, AI심화발문, 학생재응답
 `;
 
   document.getElementById("output-prompt").value = promptTemplate;
-  showToast("사회과 교수설계 기반 최종 프롬프트가 산출되었습니다!");
+  showToast("통합사회 토론 도우미 기반 최종 프롬프트가 산출되었습니다!");
 }
 
 async function generateWithUpstage() {
